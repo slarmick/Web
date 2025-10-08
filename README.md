@@ -4,12 +4,21 @@
 **Цель:** Научиться поднимать веб-сервер Nginx в контейнере Docker
 
 ### Выполненные этапы:
-- ✅ Настройка базового nginx в Docker
-- ✅ Создание кастомной HTML страницы
-- ✅ Настройка volumes для live-обновлений
-- ✅ Добавление дополнительных страниц
-- ✅ Эксперименты с портами
-- ✅ Добавление навигации между страницами
+
+#### Этап 1: Первый запуск Nginx
+![Welcome to Nginx](screenshots/01_welcome_nginx.png)
+
+#### Этап 2: Кастомная страница
+![Custom Page](screenshots/02_custom_page.png)
+
+#### Этап 3: Страница "О нас"
+![About Page](screenshots/03_about_page.png)
+
+#### Этап 4: Добавление навигации
+![Navigation](screenshots/04_added_navigation.png)
+
+#### Этап 5: Работа на порту 3000
+![New port](screenshots/05_new_port.png)
 
 ### Запуск проекта:
 git clone <https://github.com/slarmick/Web>
@@ -22,11 +31,3 @@ docker-compose up -d --build
 docker-compose.yml — описание сервиса Nginx
 code/index.html — главная HTML-страница
 screenshots/ — все скриншоты
-📸 Скриншоты работы
-"D:\Git\Web\nginx-lab\screenshots\01_welcome_nginx.png"
-"D:\Git\Web\nginx-lab\screenshots\02_custom_page.png"
-"D:\Git\Web\nginx-lab\screenshots\03_about_page.png"
-"D:\Git\Web\nginx-lab\screenshots\04_added_navigation.png"
-"D:\Git\Web\nginx-lab\screenshots\05_new_port.png"
-
-✅ Результат Сервер в Docker успешно запущен, Nginx отдаёт мою HTML-страницу.
