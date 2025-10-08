@@ -14,7 +14,7 @@
             min-height: 100vh;
         }
         .container {
-            background: crimson;
+            background: #6D7B8D;
             padding: 40px;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
