@@ -1,8 +1,21 @@
 ﻿version: "3.9"
+
 services:
   web:
     image: nginx:1.27-alpine
+    container_name: lab2_nginx
     ports:
       - "3000:80"
     volumes:
       - ./code:/usr/share/nginx/html
+      - ./nginx:/etc/nginx/conf.d
+    depends_on:
+      - php
+
+  php:
+    image: php:8.2-fpm
+    container_name: lab2_php
+    volumes:
+      - ./code:/var/www/html
+    expose:
+      - "9000"
