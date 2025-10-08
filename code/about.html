@@ -1,13 +1,192 @@
-﻿<!DOCTYPE html>
-<html>
+﻿# Обновляем about.html в современном стиле
+@'
+<!DOCTYPE html>
+<html lang="ru">
 <head>
-    <title>About Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>О нас - Лабораторные работы</title>
+    <style>
+        body { 
+            font-family: 'Arial', sans-serif; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin: 40px 0;
+        }
+        h1 { 
+            color: #2c3e50; 
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        h2 {
+            color: #3498db;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        .nav-button {
+            background: #3498db;
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: 2px solid #3498db;
+        }
+        .nav-button:hover {
+            background: white;
+            color: #3498db;
+            transform: translateY(-2px);
+        }
+        .lab-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #3498db;
+        }
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .tech-tag {
+            background: #e74c3c;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        .feature-list li:before {
+            content: "✅";
+            position: absolute;
+            left: 0;
+        }
+        .contact-info {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .student-info {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: #2c3e50;
+            color: white;
+            border-radius: 10px;
+        }
+    </style>
 </head>
 <body>
-    <h1>About Us</h1>
-    <p>Это страница "О нас" создана в лабораторной работе</p>
-    <nav>
-    <a href="/">Вернуться на главную</a>
-    </nav>
+    <div class="container">
+        <h1>👨‍💻 О нашем проекте</h1>
+
+        <div class="nav-buttons">
+            <a href="/" class="nav-button">🏠 Главная</a>
+            <a href="/master-class.html" class="nav-button">📚 Форма регистрации</a>
+            <a href="/info.php" class="nav-button">⚙️ PHP Info</a>
+            <a href="/test.php" class="nav-button">🧪 PHP Test</a>
+        </div>
+
+        <div class="student-info">
+            <h3>Студент: Здановсикй Даниил Станиславович</h3>
+            <p>Группа: 3МО - РИСКУ</p>
+        </div>
+
+        <h2>🎯 О проекте</h2>
+        <p>Этот проект представляет собой серию лабораторных работ по изучению веб-програмирования.</p>
+
+        <div class="lab-card">
+            <h3>🚀 Лабораторная работа №1</h3>
+            <p><strong>Тема:</strong> Веб-сервер в Docker (Nginx + HTML)</p>
+            <div class="tech-stack">
+                <span class="tech-tag">Docker</span>
+                <span class="tech-tag">Nginx</span>
+                <span class="tech-tag">HTML5</span>
+                <span class="tech-tag">CSS3</span>
+            </div>
+            <ul class="feature-list">
+                <li>Настройка Nginx в Docker контейнере</li>
+                <li>Создание кастомных HTML страниц</li>
+                <li>Работа с портами и навигацией</li>
+            </ul>
+        </div>
+
+        <div class="lab-card">
+            <h3>🔧 Лабораторная работа №2</h3>
+            <p><strong>Тема:</strong> Настройка Nginx + PHP-FPM. Основы HTML-форм и обработка на JavaScript.</p>
+            <div class="tech-stack">
+                <span class="tech-tag">PHP 8.2</span>
+                <span class="tech-tag">PHP-FPM</span>
+                <span class="tech-tag">JavaScript</span>
+                <span class="tech-tag">HTML Forms</span>
+                <span class="tech-tag">Docker Compose</span>
+            </div>
+            <ul class="feature-list">
+                <li>Настройка связки Nginx + PHP-FPM</li>
+                <li>Создание интерактивных HTML форм</li>
+                <li>JavaScript обработка без перезагрузки страницы</li>
+                <li>Валидация форм на клиентской стороне</li>
+                <li>Работа с различными типами полей ввода</li>
+            </ul>
+        </div>
+
+        <h2>🛠️ Технологии проекта</h2>
+        <div class="tech-stack">
+            <span class="tech-tag">Docker</span>
+            <span class="tech-tag">Docker Compose</span>
+            <span class="tech-tag">Nginx 1.27</span>
+            <span class="tech-tag">PHP 8.2</span>
+            <span class="tech-tag">PHP-FPM</span>
+            <span class="tech-tag">HTML5</span>
+            <span class="tech-tag">CSS3</span>
+            <span class="tech-tag">JavaScript</span>
+            <span class="tech-tag">Git</span>
+        </div>
+
+        <h2>📁 Структура проекта</h2>
+        <div class="lab-card">
+            <pre>
+nginx-lab/
+├── docker-compose.yml
+├── nginx/
+│   └── default.conf
+├── code/
+│   ├── index.html
+│   ├── about.html
+│   ├── master-class.html
+│   ├── info.php
+│   └── test.php
+└── README.md
+            </pre>
+        </div>
 </body>
 </html>
