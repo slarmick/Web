@@ -1,13 +1,57 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>My First Docker Site</title>
+    <title>Лабораторные работы - Docker & Nginx</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 50px auto; 
+            padding: 20px;
+        }
+        nav { 
+            margin: 20px 0; 
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        nav a { 
+            margin-right: 20px; 
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+        }
+        nav a:hover { 
+            text-decoration: underline;
+        }
+        .lab-section {
+            margin: 30px 0;
+            padding: 20px;
+            border-left: 4px solid #007bff;
+            background: #f8f9fa;
+        }
+    </style>
 </head>
 <body>
-    <h1>Hello from Docker & Nginx!!!</h1>
-    <p>Это моя первая страница в контейнере!</p>
+    <h1>🚀 Лабораторные работы по Docker & Nginx</h1>
+    
     <nav>
+        <a href="/">Главная</a>
         <a href="/about.html">О нас</a>
+        <a href="/info.php">PHP Info</a>
+        <a href="/test.php">PHP Test</a>
+        <a href="/master-class.html">Регистрация на мастер-класс</a>
     </nav>
+
+    <div class="lab-section">
+        <h2>Лаба 1: Веб-сервер в Docker</h2>
+        <p>Nginx + HTML страницы</p>
+    </div>
+
+    <div class="lab-section">
+        <h2>Лаба 2: Nginx + PHP-FPM + Формы</h2>
+        <p>PHP обработка + HTML формы + JavaScript</p>
+        <p><a href="/master-class.html">👉 Перейти к форме регистрации на мастер-класс</a></p>
+    </div>
 </body>
 </html>
