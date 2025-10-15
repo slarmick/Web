@@ -1,0 +1,203 @@
+[33mcommit ea681dff1c4e225a3a96087744fe7efe5d366375[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Wed Oct 15 19:34:57 2025 +0200
+
+    feat: упращение js формы и перенастроена для PHP обработки
+
+[33mcommit f3583bb352bdcebfd41a867346c84a6118ee074b[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Wed Oct 15 19:12:08 2025 +0200
+
+    добавлен: process.php с обработкой формы и подтверждением
+
+[33mcommit 10137c49e5dded7f585bf7c610e3e0920381349d[m[33m ([m[1;31morigin/master[m[33m)[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Thu Oct 9 01:02:24 2025 +0200
+
+    feat: дополнение Readme
+
+[33mcommit a321fcfa7999283ca8ad0f1cf95354dd7564f4d8[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Thu Oct 9 00:49:27 2025 +0200
+
+    fix: корректировка
+
+[33mcommit bce244c1314a1b5972750ac1312fbaeb1f1a2fd1[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Thu Oct 9 00:47:52 2025 +0200
+
+    feat: добавление конпки 'На главную' в форме регистрации
+
+[33mcommit ee43fdd28f8f9f4ab3a0bdf43214f13ad77275b6[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Thu Oct 9 00:39:01 2025 +0200
+
+    feat: корректировки
+
+[33mcommit 72a9f931e2b56135bfdb59f385f331e05458808e[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Thu Oct 9 00:37:38 2025 +0200
+
+    feat: корректировки
+
+[33mcommit e2124cafd45ee9b5778a6c75a1a0c46f3ba6ff72[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Thu Oct 9 00:36:54 2025 +0200
+
+    feat: корректировки
+
+[33mcommit d0b1c558f9b23b6afce02c7d38839a8c8e789025[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Thu Oct 9 00:34:59 2025 +0200
+
+    feat: корректировки
+
+[33mcommit 229fef791ef61ee322aaf87adfa5caebe8a866b3[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Thu Oct 9 00:32:55 2025 +0200
+
+    feat: стиллизация страницы php-info
+
+[33mcommit 7371a5d37dc1630c8002f132da5673b8134f78ae[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Thu Oct 9 00:31:31 2025 +0200
+
+    feat: стиллизация страницы php-test
+
+[33mcommit 871712b3182398aaa5862af5c46c980f34e6853c[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Thu Oct 9 00:30:18 2025 +0200
+
+    feat: стиллизация главной страницы
+
+[33mcommit 317b079371a8279f57166f6f79514e8726bafb2b[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Thu Oct 9 00:28:34 2025 +0200
+
+    feat: стриницы php-info и php-test работают
+
+[33mcommit 40e2497bc406ffd9184d25f1a5233dccb22f59dc[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Thu Oct 9 00:22:42 2025 +0200
+
+    fix: Обновляем конфиг Nginx
+
+[33mcommit 4d00f820434bf1bb90121eb3d8f7f92b29b3b8f1[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Thu Oct 9 00:21:05 2025 +0200
+
+    fix: исправление docker-compose.yml
+
+[33mcommit 8faae1fe92a684b483471cf600a83e6e3ed4fa93[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Thu Oct 9 00:13:30 2025 +0200
+
+    feat(lab2): стиллизация страницы 'О нас'
+
+[33mcommit f58524110f2c29546df6ab3a001871fb1e4d8b36[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Wed Oct 8 23:58:52 2025 +0200
+
+    feat(lab2): добавлены все файлы для второй лабы - php тесты и форма регистрации
+
+[33mcommit 4bcf4ba84970fc17946c74ccb64a89cc49855db7[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Wed Oct 8 23:33:44 2025 +0200
+
+    feat(lab2): добавлена конфигурация nginx для обработки php
+
+[33mcommit cb5c5b7318646c7d953004fe4f6085adc35c73e5[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Wed Oct 8 23:31:49 2025 +0200
+
+    feat(lab2): добавлен сервис php-fpm в docker-compose
+
+[33mcommit e95b83e09fd2a959313430f61456662d550810a8[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Wed Oct 8 22:41:45 2025 +0200
+
+    docs: визульные изменения в README
+
+[33mcommit c29b2e32bf4c1720534053735f6065fe935a48d7[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Wed Oct 8 22:40:48 2025 +0200
+
+    docs: визульные изменения в README
+
+[33mcommit 2e96da4e2baf227af5cffa8b3f67a438aa71ee82[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Wed Oct 8 22:38:34 2025 +0200
+
+    docs: визульные изменения в README
+
+[33mcommit 8b43a92c1f1730df2ca02ce5111242f8b8c70b60[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Wed Oct 8 22:37:24 2025 +0200
+
+    docs: визульные изменения в README
+
+[33mcommit 54e637fd04a8414fde8f51eae29de5151ebff6f0[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Wed Oct 8 22:28:36 2025 +0200
+
+    feat: Добавление автора
+
+[33mcommit 5059034d3f0de3a1a58865b7191554ad0ee629fd[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Wed Oct 8 22:15:12 2025 +0200
+
+    docs: добавление скринов в README
+
+[33mcommit 4ece610f51cbb8b3c0c0a98dcb93c30455047be9[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Wed Oct 8 22:03:39 2025 +0200
+
+    docs: полное обновление README со всеми выполненными этапами
+
+[33mcommit ff38b7c37e87a6767c50f495a153e715a9353dd9[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Wed Oct 8 21:44:29 2025 +0200
+
+    feat: изменен порт с 8080 на 3000
+
+[33mcommit 301524e27c854ea8ea1439b6433d3d23a9754ca0[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Wed Oct 8 21:32:50 2025 +0200
+
+    feat: добавлен скриншот навигации
+
+[33mcommit ac1b47f5cd2475a4a00cdbd98a13844117065b69[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Wed Oct 8 21:30:04 2025 +0200
+
+    feat: добавлена навигация между страницами
+
+[33mcommit 0c54ec07f38158b979aca0c205b8afa8d199f63f[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Wed Oct 8 21:26:15 2025 +0200
+
+    feat: добавлена страница about.html
+
+[33mcommit 57c95a7370b79a3831128fdbf730fbee9bde3a04[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Wed Oct 8 21:20:40 2025 +0200
+
+    feat: добавлена кастомная HTML страница и настройка volumes
+
+[33mcommit 5eb2feb028ff2e98394c43b01578eccb14dfa3ce[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Wed Oct 8 21:16:10 2025 +0200
+
+    feat: первый успешный запуск nginx, добавлен скриншот
+
+[33mcommit 4684f535fa59fcad20efa6137ee9bd0c48ae7bf0[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Wed Oct 8 21:14:24 2025 +0200
+
+    feat: добавлена базовая конфигурация nginx в docker-compose
+
+[33mcommit 865c3238fd50bc1d85a6b846b2c1c9f9794e7683[m
+Author: Daniil Zdanovskii <114250637+slarmick@users.noreply.github.com>
+Date:   Wed Oct 8 21:12:56 2025 +0200
+
+    feat: инициализация проекта и README
