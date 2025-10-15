@@ -1,6 +1,4 @@
-﻿<?php
-session_start();
-?>
+﻿<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -327,7 +325,6 @@ session_start();
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Анимация карточек
             const cards = document.querySelectorAll('.lab-card');
             cards.forEach((card, index) => {
                 card.style.opacity = '0';
@@ -340,7 +337,6 @@ session_start();
                 }, index * 200);
             });
 
-            // Анимация для данных сессии
             const sessionData = document.querySelector('.session-data');
             if (sessionData) {
                 sessionData.style.opacity = '0';
