@@ -64,13 +64,6 @@
             background: #2980b9; 
             transform: translateY(-2px);
         }
-        #result { 
-            margin-top: 25px; 
-            padding: 20px; 
-            background: #ecf0f1; 
-            border-radius: 5px;
-            border-left: 4px solid #3498db;
-        }
         .required::after {
             content: " *";
             color: #e74c3c;
@@ -82,20 +75,42 @@
         .home-button:hover {
             background: #219a52;
         }
+        .view-button {
+            background: #9b59b6;
+            margin-top: 15px;
+        }
+        .view-button:hover {
+            background: #8e44ad;
+        }
         .button-group {
             display: flex;
             gap: 10px;
+            margin-top: 20px;
         }
         .button-group button {
             flex: 1;
+        }
+        .alert-info {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            text-align: center;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>📚 Регистрация на мастер-класс</h1>
+
+        <div class="alert-info">
+            <strong>ℹ️ Внимание!</strong> Форма теперь обрабатывается на сервере через PHP.
+            Данные сохраняются в сессии и файл.
+        </div>
         
-        <form id="masterClassForm">
+        <form id="masterClassForm" action="process.php" method="POST">
             <div class="form-group">
                 <label for="name" class="required">ФИО участника:</label>
                 <input type="text" id="name" name="name" placeholder="Введите ваше полное имя" required>
@@ -142,45 +157,45 @@
             </div>
 
             <div class="button-group">
-                <button type="submit">🎯 Зарегистрироваться</button>
+                <button type="submit">🎯 Зарегистрироваться через PHP</button>
             </div>
         </form>
 
-        <div id="result"></div>
-
-        <!-- Добавляем кнопку "На главную" после результатов -->
-        <div style="text-align: center; margin-top: 20px;">
-            <a href="/" style="text-decoration: none;">
-                <button type="button" class="home-button" style="width: auto; padding: 10px 25px;">
-                    🏠 Вернуться на главную
-                </button>
-            </a>
+        <!-- Кнопки навигации -->
+        <div style="text-align: center; margin-top: 30px;">
+            <div class="button-group">
+                <a href="/" style="text-decoration: none; flex: 1;">
+                    <button type="button" class="home-button" style="width: 100%;">
+                        🏠 Вернуться на главную
+                    </button>
+                </a>
+                <a href="view.php" style="text-decoration: none; flex: 1;">
+                    <button type="button" class="view-button" style="width: 100%;">
+                        📊 Посмотреть все данные
+                    </button>
+                </a>
+            </div>
         </div>
     </div>
 
     <script>
+        // Оставляем только alert для демонстрации введенных данных перед отправкой
         document.getElementById("masterClassForm").addEventListener("submit", function(e) {
-            e.preventDefault();
+            const name = document.querySelector("[name='name']").value;
+            const email = document.querySelector("[name='email']").value;
+            const topicSelect = document.querySelector("[name='topic']");
+            const topic = topicSelect.options[topicSelect.selectedIndex].text;
+            const format = document.querySelector("[name='format']:checked");
+            const formatText = format ? (format.value === 'online' ? 'Онлайн' : 'Очно') : 'Не выбран';
+            const materials = document.querySelector("[name='materials']").checked ? 'Да' : 'Нет';
             
-            const formData = new FormData(this);
-            const data = Object.fromEntries(formData.entries());
-            
-            let resultHTML = `
-                <h3>✅ Регистрация успешно завершена!</h3>
-                <p><strong>ФИО:</strong> ${data.name}</p>
-                <p><strong>Дата рождения:</strong> ${formatDate(data.birthdate)}</p>
-                <p><strong>Тема мастер-класса:</strong> ${getTopicName(data.topic)}</p>
-                <p><strong>Формат участия:</strong> ${data.format === 'online' ? '🎥 Онлайн' : '🏢 Очно'}</p>
-                <p><strong>Материалы включены:</strong> ${data.materials ? '✅ Да (+500₽)' : '❌ Нет'}</p>
-                <p><strong>Email:</strong> ${data.email}</p>
-                <hr>
-                <p><em>На указанный email отправлено письмо с подтверждением регистрации.</em></p>
-            `;
-            
-            document.getElementById("result").innerHTML = resultHTML;
-            
-            // Плавная прокрутка к результату
-            document.getElementById("result").scrollIntoView({ behavior: 'smooth' });
+            alert("Данные для отправки на сервер:\n\n" +
+                  "ФИО: " + name + "\n" +
+                  "Email: " + email + "\n" + 
+                  "Тема: " + topic + "\n" +
+                  "Формат: " + formatText + "\n" +
+                  "Материалы: " + materials + "\n\n" +
+                  "После подтверждения данные будут отправлены на сервер для обработки PHP.");
         });
 
         function getTopicName(topic) {
@@ -194,16 +209,15 @@
             return topics[topic] || topic;
         }
 
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('ru-RU');
-        }
-
         // Устанавливаем минимальную дату (18 лет назад)
         window.addEventListener('load', function() {
             const today = new Date();
             const minDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
             document.getElementById('birthdate').max = minDate.toISOString().split('T')[0];
+            
+            // Устанавливаем placeholder для даты
+            const birthdateInput = document.getElementById('birthdate');
+            birthdateInput.title = "Вы должны быть старше 18 лет";
         });
     </script>
 </body>
