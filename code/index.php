@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿<?php session_start(); ?>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -101,6 +102,14 @@
             font-size: 0.8em;
             margin-left: 10px;
         }
+        .status-badge-new {
+            background: #e67e22;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
         .quick-links {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -120,6 +129,41 @@
             background: #2980b9;
             transform: translateY(-3px);
         }
+        .session-data {
+            background: #e8f4fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #3498db;
+        }
+        .errors {
+            background: #fde8e8;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #e74c3c;
+            color: #c0392b;
+        }
+        .errors ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .php-info {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #ffc107;
+            color: #856404;
+        }
+        .data-count {
+            background: #d4edda;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #28a745;
+            color: #155724;
+        }
     </style>
 </head>
 <body>
@@ -130,8 +174,75 @@
             <a href="/" class="nav-button">🏠 Главная</a>
             <a href="/about.html" class="nav-button">👨‍💻 О нас</a>
             <a href="/master-class.html" class="nav-button">📚 Форма регистрации</a>
+            <a href="/view.php" class="nav-button">📊 Просмотр данных</a>
             <a href="/test.php" class="nav-button">🧪 PHP Test</a>
             <a href="/info.php" class="nav-button">⚙️ PHP Info</a>
+        </div>
+
+        <!-- Вывод ошибок валидации -->
+        <?php if(isset($_SESSION['errors'])): ?>
+            <div class="errors">
+                <h3>❌ Ошибки при заполнении формы:</h3>
+                <ul>
+                    <?php foreach($_SESSION['errors'] as $error): ?>
+                        <li><?= $error ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+            <?php unset($_SESSION['errors']); ?>
+        <?php endif; ?>
+
+        <!-- Вывод данных из сессии -->
+        <?php if(isset($_SESSION['form_data'])): ?>
+            <div class="session-data">
+                <h3>✅ Данные успешно сохранены!</h3>
+                <p><strong>ФИО:</strong> <?= $_SESSION['form_data']['name'] ?></p>
+                <p><strong>Дата рождения:</strong> <?= $_SESSION['form_data']['birthdate'] ?></p>
+                <p><strong>Тема:</strong> 
+                    <?php
+                    $topicNames = [
+                        'webdev' => 'Веб-разработка для начинающих',
+                        'design' => 'UI/UX дизайн',
+                        'marketing' => 'Цифровой маркетинг',
+                        'data' => 'Анализ данных с Python',
+                        'mobile' => 'Мобильная разработка'
+                    ];
+                    echo $topicNames[$_SESSION['form_data']['topic']] ?? $_SESSION['form_data']['topic'];
+                    ?>
+                </p>
+                <p><strong>Формат:</strong> <?= $_SESSION['form_data']['format'] == 'online' ? '🎥 Онлайн' : '🏢 Очно' ?></p>
+                <p><strong>Материалы:</strong> <?= $_SESSION['form_data']['materials'] == 'Да' ? '✅ Да (+500₽)' : '❌ Нет' ?></p>
+                <p><strong>Email:</strong> <?= $_SESSION['form_data']['email'] ?></p>
+                <p><em>Данные сохранены в сессии и записаны в файл data.txt</em></p>
+            </div>
+            <?php unset($_SESSION['form_data']); ?>
+        <?php endif; ?>
+
+        <!-- Информация о количестве записей -->
+        <?php
+        $filename = "data.txt";
+        $totalRecords = 0;
+        if(file_exists($filename) && filesize($filename) > 0){
+            $lines = file($filename, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            $totalRecords = count($lines);
+        }
+        ?>
+        
+        <?php if($totalRecords > 0): ?>
+            <div class="data-count">
+                <h3>📊 Статистика данных</h3>
+                <p>Всего сохраненных записей: <strong><?= $totalRecords ?></strong></p>
+                <a href="/view.php" class="nav-button" style="display: inline-block; padding: 8px 20px; margin-top: 10px;">
+                    📋 Посмотреть все данные
+                </a>
+            </div>
+        <?php endif; ?>
+
+        <!-- Информация о PHP обработке -->
+        <div class="php-info">
+            <h3>ℹ️ Лабораторная работа №3 активна!</h3>
+            <p>Форма регистрации теперь обрабатывается на сервере через PHP с валидацией данных, 
+            сохранением в сессии и записью в файл.</p>
         </div>
 
         <h2>📋 Быстрый доступ</h2>
@@ -141,16 +252,16 @@
                 <p>Информация о лабораторных работах</p>
             </a>
             <a href="/master-class.html" class="quick-link">
-                <h3>📝 Форма</h3>
-                <p>Регистрация на мастер-класс</p>
+                <h3>📝 Форма регистрации</h3>
+                <p>Заполнить форму (PHP обработка)</p>
+            </a>
+            <a href="/view.php" class="quick-link">
+                <h3>📊 Все данные</h3>
+                <p>Просмотр всех записей</p>
             </a>
             <a href="/test.php" class="quick-link">
                 <h3>🧪 Тест PHP</h3>
                 <p>Проверка работы PHP</p>
-            </a>
-            <a href="/info.php" class="quick-link">
-                <h3>⚙️ PHP Info</h3>
-                <p>Детальная информация о PHP</p>
             </a>
         </div>
 
@@ -190,6 +301,26 @@
             </ul>
         </div>
 
+        <div class="lab-card">
+            <h3>💻 Лабораторная работа №3 <span class="status-badge-new">Активна!</span></h3>
+            <p><strong>Тема:</strong> Обработка данных формы на PHP с сохранением в сессии и файл</p>
+            <div class="tech-stack">
+                <span class="tech-tag">PHP 8.2</span>
+                <span class="tech-tag">Сессии PHP</span>
+                <span class="tech-tag">Валидация</span>
+                <span class="tech-tag">Файлы</span>
+                <span class="tech-tag">HTML Forms</span>
+            </div>
+            <ul class="feature-list">
+                <li>Обработка данных формы на стороне сервера через PHP</li>
+                <li>Сохранение данных в сессии PHP</li>
+                <li>Сохранение данных в текстовый файл</li>
+                <li>Валидация данных на стороне сервера</li>
+                <li>Вывод всех сохраненных данных на отдельной странице</li>
+                <li>Обработка ошибок с пользовательскими сообщениями</li>
+            </ul>
+        </div>
+
         <h2>🛠️ Технологии проекта</h2>
         <div class="tech-stack">
             <span class="tech-tag">Docker</span>
@@ -201,6 +332,8 @@
             <span class="tech-tag">CSS3</span>
             <span class="tech-tag">JavaScript</span>
             <span class="tech-tag">Git</span>
+            <span class="tech-tag">Сессии PHP</span>
+            <span class="tech-tag">Валидация форм</span>
         </div>
     </div>
 
@@ -218,6 +351,16 @@
                     card.style.transform = 'translateY(0)';
                 }, index * 200);
             });
+
+            // Анимация для данных сессии
+            const sessionData = document.querySelector('.session-data');
+            if (sessionData) {
+                sessionData.style.opacity = '0';
+                setTimeout(() => {
+                    sessionData.style.transition = 'all 0.8s ease';
+                    sessionData.style.opacity = '1';
+                }, 500);
+            }
         });
     </script>
 </body>
