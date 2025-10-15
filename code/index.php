@@ -1,6 +1,7 @@
-﻿<?php 
+﻿<?php
 session_start();
-?><!DOCTYPE html>
+?>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -97,14 +98,6 @@ session_start();
         }
         .status-badge {
             background: #27ae60;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 15px;
-            font-size: 0.8em;
-            margin-left: 10px;
-        }
-        .status-badge-new {
-            background: #e67e22;
             color: white;
             padding: 5px 15px;
             border-radius: 15px;
@@ -239,12 +232,6 @@ session_start();
             </div>
         <?php endif; ?>
 
-        <!-- Информация о PHP обработке -->
-        <div class="php-info">
-            <h3>ℹ️ Лабораторная работа №3 активна!</h3>
-            <p>Форма регистрации теперь обрабатывается на сервере через PHP с валидацией данных, 
-            сохранением в сессии и записью в файл.</p>
-        </div>
 
         <h2>📋 Быстрый доступ</h2>
         <div class="quick-links">
@@ -303,7 +290,7 @@ session_start();
         </div>
 
         <div class="lab-card">
-            <h3>💻 Лабораторная работа №3 <span class="status-badge-new">Активна!</span></h3>
+            <h3>💻 Лабораторная работа №3 <span class="status-badge">Завершена</span></h3>
             <p><strong>Тема:</strong> Обработка данных формы на PHP с сохранением в сессии и файл</p>
             <div class="tech-stack">
                 <span class="tech-tag">PHP 8.2</span>
