@@ -69,10 +69,19 @@ $api = new ApiClient();
 $url = 'https://api.artic.edu/api/v1/artworks?limit=10&fields=title,artist_display,medium_display';
 $apiData = $api->request($url);
 
+// Отладочная информация
+error_log("API Data received: " . print_r($apiData, true));
+
 // Сохраняем данные API в сессию для отображения на главной странице
 $_SESSION['api_data'] = $apiData;
 
+// Проверяем что данные сохранились в сессию
+error_log("Session data after API: " . print_r($_SESSION, true));
+
+// Устанавливаем куку о последней отправке формы
 setcookie("last_submission", date('Y-m-d H:i:s'), time() + 3600, "/");
+
+// Перенаправляем на главную страницу
 header("Location: index.php");
 exit();
 ?>

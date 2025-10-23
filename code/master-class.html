@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Регистрация на мастер-класс — Список художественных техник</title>
+    <title>Регистрация на мастер-класс</title>
     <style>
         body { 
             font-family: Arial, sans-serif; 
-            max-width: 900px; 
+            max-width: 600px; 
             margin: 50px auto; 
             padding: 20px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -22,14 +22,8 @@
         h1 { 
             color: #2c3e50; 
             text-align: center;
-            margin-bottom: 10px;
-            font-size: 2.2em;
-        }
-        .subtitle {
-            text-align: center;
-            color: #7f8c8d;
             margin-bottom: 30px;
-            font-size: 1.1em;
+            font-size: 2.2em;
         }
         .form-group { 
             margin-bottom: 20px; 
@@ -80,10 +74,7 @@
         .button-group {
             display: flex;
             gap: 10px;
-            margin-top: 25px;
-        }
-        .button-group button, .button-group a {
-            flex: 1;
+            margin-top: 20px;
         }
         .nav-button {
             background: #27ae60;
@@ -95,95 +86,30 @@
             font-weight: bold;
             transition: all 0.3s ease;
             border: 2px solid #27ae60;
+            flex: 1;
         }
         .nav-button:hover {
             background: white;
             color: #27ae60;
             transform: translateY(-2px);
         }
-        
-        /* Стили для списка художественных техник */
-        .techniques-section {
-            margin: 40px 0;
-            padding: 25px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            border-left: 4px solid #e74c3c;
-        }
-        .techniques-title {
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 1.5em;
-        }
-        .techniques-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .technique-item {
-            background: white;
-            padding: 15px 20px;
-            margin: 10px 0;
-            border-radius: 8px;
-            border-left: 4px solid #3498db;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: transform 0.2s ease;
-        }
-        .technique-item:hover {
-            transform: translateX(5px);
-            border-left-color: #e74c3c;
-        }
-        .artwork-title {
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 5px;
-            font-size: 1.1em;
-        }
-        .artwork-artist {
-            color: #3498db;
-            margin-bottom: 5px;
-            font-style: italic;
-        }
-        .artwork-technique {
-            color: #e74c3c;
-            font-weight: bold;
-        }
-        .loading {
-            text-align: center;
-            padding: 30px;
-            color: #7f8c8d;
-            font-style: italic;
-        }
-        .error {
-            text-align: center;
-            padding: 20px;
-            color: #e74c3c;
-            background: #fde8e8;
-            border-radius: 8px;
-            margin: 10px 0;
-        }
-        .success-message {
-            text-align: center;
+        .info-message {
+            background: #e8f4fd;
             padding: 15px;
-            background: #d4edda;
-            color: #155724;
             border-radius: 8px;
-            margin: 15px 0;
-            border: 1px solid #c3e6cb;
-        }
-        .counter {
+            margin: 20px 0;
+            border-left: 4px solid #3498db;
             text-align: center;
-            color: #7f8c8d;
-            margin-bottom: 15px;
-            font-size: 0.9em;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🎨 Регистрация на мастер-класс</h1>
-        <div class="subtitle">Изучаем современные технологии с вдохновением от классического искусства</div>
+        
+        <div class="info-message">
+            После успешной регистрации вы увидите список художественных техник из коллекции музея
+        </div>
         
         <form id="masterClassForm" action="process.php" method="POST">
             <div class="form-group">
@@ -232,21 +158,9 @@
             </div>
 
             <div class="button-group">
-                <button type="submit">🎯 Зарегистрироваться на мастер-класс</button>
+                <button type="submit">🎯 Зарегистрироваться</button>
             </div>
         </form>
-
-        <!-- Список художественных техник из API -->
-        <div class="techniques-section">
-            <div class="techniques-title">🖌️ Список художественных техник</div>
-            <div class="success-message">
-                Примеры различных художественных техник из коллекции Чикагского института искусств
-            </div>
-            <div class="counter" id="counter">Загружаем...</div>
-            <div id="techniquesList">
-                <div class="loading">⏳ Загружаем список художественных техник...</div>
-            </div>
-        </div>
 
         <!-- Кнопки навигации -->
         <div class="button-group">
@@ -256,106 +170,12 @@
     </div>
 
     <script>
-        // Загружаем список художественных техник при загрузке страницы
+        // Устанавливаем максимальную дату (18 лет назад)
         document.addEventListener('DOMContentLoaded', function() {
-            loadArtTechniques();
-            
-            // Устанавливаем максимальную дату (18 лет назад)
             const today = new Date();
             const minDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
             document.getElementById('birthdate').max = minDate.toISOString().split('T')[0];
         });
-
-        function loadArtTechniques() {
-            fetch('api-art-list.php')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok: ' + response.status);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    displayTechniques(data);
-                })
-                .catch(error => {
-                    console.error('Error loading techniques:', error);
-                    displayError('Ошибка загрузки списка техник: ' + error.message);
-                });
-        }
-
-        function displayTechniques(data) {
-            const list = document.getElementById('techniquesList');
-            const counter = document.getElementById('counter');
-            
-            if (data.success && data.artworks && data.artworks.length > 0) {
-                let html = '<ul class="techniques-list">';
-                let validCount = 0;
-                
-                data.artworks.forEach((artwork, index) => {
-                    const title = artwork.title || 'Без названия';
-                    const artist = artwork.artist_display || 'Неизвестен';
-                    const technique = artwork.medium_display;
-                    
-                    // Пропускаем если нет техники
-                    if (!technique) return;
-                    
-                    validCount++;
-                    
-                    html += `
-                        <li class="technique-item">
-                            <div class="artwork-title">${escapeHtml(title)}</div>
-                            <div class="artwork-artist">👨‍🎨 ${escapeHtml(artist)}</div>
-                            <div class="artwork-technique">🎨 ${escapeHtml(technique)}</div>
-                        </li>
-                    `;
-                });
-                
-                html += '</ul>';
-                list.innerHTML = html;
-                counter.textContent = `Найдено ${validCount} художественных техник`;
-                
-            } else {
-                const errorMsg = data.error ? `Ошибка API: ${data.error}` : 'Не удалось загрузить список художественных техник';
-                displayError(errorMsg);
-            }
-        }
-
-        function displayError(message) {
-            const list = document.getElementById('techniquesList');
-            const counter = document.getElementById('counter');
-            
-            counter.textContent = 'Ошибка загрузки';
-            list.innerHTML = `
-                <div class="error">
-                    <h3>❌ Ошибка загрузки</h3>
-                    <p>${message}</p>
-                    <p><small>Показываем примеры техник:</small></p>
-                    <ul class="techniques-list">
-                        <li class="technique-item">
-                            <div class="artwork-title">Звездная ночь</div>
-                            <div class="artwork-artist">👨‍🎨 Винсент Ван Гог</div>
-                            <div class="artwork-technique">🎨 Масло на холсте</div>
-                        </li>
-                        <li class="technique-item">
-                            <div class="artwork-title">Водяные лилии</div>
-                            <div class="artwork-artist">👨‍🎨 Клод Моне</div>
-                            <div class="artwork-technique">🎨 Масляная живопись</div>
-                        </li>
-                        <li class="technique-item">
-                            <div class="artwork-title">Мыслитель</div>
-                            <div class="artwork-artist">👨‍🎨 Огюст Роден</div>
-                            <div class="artwork-technique">🎨 Бронзовая скульптура</div>
-                        </li>
-                    </ul>
-                </div>
-            `;
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
 
         // Обработка отправки формы
         document.getElementById("masterClassForm").addEventListener("submit", function(e) {
