@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';  # ИСПРАВЛЕННЫЙ ПУТЬ
 use GuzzleHttp\Client;
 
 class ApiClient {
@@ -31,16 +31,6 @@ class ApiClient {
                 'success' => false,
                 'error' => $e->getMessage()
             ];
-        }
-    }
-
-    public function getArtworkById(int $id): array {
-        try {
-            $response = $this->client->get("https://api.artic.edu/api/v1/artworks/{$id}");
-            $body = $response->getBody()->getContents();
-            return json_decode($body, true);
-        } catch (\Exception $e) {
-            return ['error' => $e->getMessage()];
         }
     }
 }
