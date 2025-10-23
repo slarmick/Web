@@ -1,12 +1,12 @@
 <?php
-// Явно запускаем сессию в начале
+// Настройки сессии ДО запуска сессии
+ini_set('session.gc_maxlifetime', 3600);
+session_set_cookie_params(3600);
+
+// Запускаем сессию
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-
-// Устанавливаем время жизни сессии
-ini_set('session.gc_maxlifetime', 3600);
-session_set_cookie_params(3600);
 
 // Получаем данные из формы
 $name = htmlspecialchars($_POST['name'] ?? '');
@@ -50,8 +50,6 @@ if (empty($email)) {
 
 if (!empty($errors)) {
     $_SESSION['errors'] = $errors;
-    // Явно сохраняем сессию
-    session_write_close();
     header("Location: index.php");
     exit();
 }
@@ -83,9 +81,6 @@ $_SESSION['api_data'] = $apiData;
 
 // Устанавливаем куку о последней отправке формы
 setcookie("last_submission", date('Y-m-d H:i:s'), time() + 3600, "/");
-
-// Явно сохраняем сессию перед редиректом
-session_write_close();
 
 // Перенаправляем на главную страницу
 header("Location: index.php");
