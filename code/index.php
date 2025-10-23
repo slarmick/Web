@@ -208,6 +208,51 @@
             max-height: 400px;
             overflow-y: auto;
         }
+        /* Стили для списка художественных техник */
+        .techniques-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .technique-item {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+        }
+        .technique-item:hover {
+            transform: translateX(5px);
+            border-left-color: #e74c3c;
+        }
+        .artwork-title {
+            color: #2c3e50;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+        .artwork-artist {
+            color: #3498db;
+            margin-bottom: 5px;
+            font-style: italic;
+        }
+        .artwork-technique {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .api-source {
+            text-align: center;
+            margin-top: 15px;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        .techniques-count {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
     </style>
 </head>
 <body>
@@ -275,18 +320,34 @@
             <p><strong>Последняя отправка формы:</strong> <?= $userInfo['last_submission'] ?></p>
         </div>
 
-        <!-- Вывод данных из API -->
+        <!-- Вывод списка художественных техник из API -->
         <?php if(isset($_SESSION['api_data'])): ?>
             <div class="api-data">
-                <h3>🎨 Данные из API (Art Institute of Chicago):</h3>
-                <?php if(isset($_SESSION['api_data']['error'])): ?>
-                    <div class="api-error">
-                        <h4>❌ Ошибка API:</h4>
-                        <p><?= htmlspecialchars($_SESSION['api_data']['error']) ?></p>
+                <h3>🎨 Список художественных техник из коллекции музея</h3>
+                
+                <?php if(isset($_SESSION['api_data']['data']) && is_array($_SESSION['api_data']['data'])): ?>
+                    <div class="techniques-count">
+                        Найдено <?= count($_SESSION['api_data']['data']) ?> произведений искусства
                     </div>
+                    <div class="techniques-list">
+                        <?php foreach($_SESSION['api_data']['data'] as $artwork): ?>
+                            <div class="technique-item">
+                                <div class="artwork-title"><strong><?= htmlspecialchars($artwork['title'] ?? 'Без названия') ?></strong></div>
+                                <div class="artwork-artist">👨‍🎨 <?= htmlspecialchars($artwork['artist_display'] ?? 'Неизвестен') ?></div>
+                                <div class="artwork-technique">🎨 <?= htmlspecialchars($artwork['medium_display'] ?? 'Техника не указана') ?></div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                    
+                    <?php if(isset($_SESSION['api_data']['info']['source'])): ?>
+                        <div class="api-source">
+                            <em>Источник: <?= htmlspecialchars($_SESSION['api_data']['info']['source']) ?></em>
+                        </div>
+                    <?php endif; ?>
+                    
                 <?php else: ?>
-                    <div class="api-raw-data">
-                        <pre><?php echo htmlspecialchars(print_r($_SESSION['api_data'], true)); ?></pre>
+                    <div class="api-error">
+                        <p>❌ Не удалось загрузить список художественных техник</p>
                     </div>
                 <?php endif; ?>
             </div>

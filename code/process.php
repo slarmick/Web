@@ -61,14 +61,15 @@ $_SESSION['form_data'] = [
 $dataLine = date('Y-m-d H:i:s') . ";" . $name . ";" . $birthdate . ";" . $topic . ";" . $format . ";" . $materials . ";" . $email . "\n";
 file_put_contents("data.txt", $dataLine, FILE_APPEND);
 
-// Шаг 2 из задания: Интеграция API
+// Шаг 2 из задания: Интеграция API после успешной обработки формы
 require_once 'ApiClient.php';
 $api = new ApiClient();
 
-// Используем API Art Institute of Chicago
-$url = 'https://api.artic.edu/api/v1/artworks?limit=5';
+// Используем API Art Institute of Chicago для получения списка художественных техник
+$url = 'https://api.artic.edu/api/v1/artworks?limit=10&fields=title,artist_display,medium_display';
 $apiData = $api->request($url);
 
+// Сохраняем данные API в сессию для отображения на главной странице
 $_SESSION['api_data'] = $apiData;
 
 setcookie("last_submission", date('Y-m-d H:i:s'), time() + 3600, "/");
