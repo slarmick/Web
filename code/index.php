@@ -1,4 +1,17 @@
 ﻿<?php session_start(); ?>
+
+<div style="background: #ffeb3b; padding: 10px; margin: 10px 0; border: 2px solid #ff9800; border-radius: 5px;">
+    <strong>🔧 Debug Session Data:</strong>
+    <div><strong>Has form_data:</strong> <?= isset($_SESSION['form_data']) ? 'YES' : 'NO' ?></div>
+    <div><strong>Has api_data:</strong> <?= isset($_SESSION['api_data']) ? 'YES' : 'NO' ?></div>
+    <?php if(isset($_SESSION['api_data'])): ?>
+        <div><strong>API Data count:</strong> <?= isset($_SESSION['api_data']['data']) ? count($_SESSION['api_data']['data']) : 'NO DATA ARRAY' ?></div>
+        <div><strong>API Structure:</strong> 
+            <pre style="font-size: 10px;"><?= htmlspecialchars(print_r(array_keys($_SESSION['api_data']), true)) ?></pre>
+        </div>
+    <?php endif; ?>
+</div>
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -307,7 +320,7 @@
             <?php unset($_SESSION['form_data']); ?>
         <?php endif; ?>
 
-        <!-- Информация о пользователе (ЛР-4) -->
+        <!-- Информация о пользователе -->
         <?php
         require_once 'UserInfo.php';
         $userInfo = UserInfo::getInfo();
@@ -322,37 +335,42 @@
 
         <!-- Вывод списка художественных техник из API -->
         <?php if(isset($_SESSION['api_data'])): ?>
-            <div class="api-data">
-                <h3>🎨 Список художественных техник из коллекции музея</h3>
-                
-                <?php if(isset($_SESSION['api_data']['data']) && is_array($_SESSION['api_data']['data'])): ?>
-                    <div class="techniques-count">
-                        Найдено <?= count($_SESSION['api_data']['data']) ?> произведений искусства
-                    </div>
-                    <div class="techniques-list">
-                        <?php foreach($_SESSION['api_data']['data'] as $artwork): ?>
-                            <div class="technique-item">
-                                <div class="artwork-title"><strong><?= htmlspecialchars($artwork['title'] ?? 'Без названия') ?></strong></div>
-                                <div class="artwork-artist">👨‍🎨 <?= htmlspecialchars($artwork['artist_display'] ?? 'Неизвестен') ?></div>
-                                <div class="artwork-technique">🎨 <?= htmlspecialchars($artwork['medium_display'] ?? 'Техника не указана') ?></div>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                    
-                    <?php if(isset($_SESSION['api_data']['info']['source'])): ?>
-                        <div class="api-source">
-                            <em>Источник: <?= htmlspecialchars($_SESSION['api_data']['info']['source']) ?></em>
-                        </div>
-                    <?php endif; ?>
-                    
-                <?php else: ?>
-                    <div class="api-error">
-                        <p>❌ Не удалось загрузить список художественных техник</p>
-                    </div>
-                <?php endif; ?>
+    <div class="api-data">
+        <h3>🎨 Список художественных техник из коллекции музея</h3>
+        
+        <?php 
+        // Определяем где находятся данные в ответе API
+        $artworks = $_SESSION['api_data']['data'] ?? [];
+        $total = $_SESSION['api_data']['pagination']['total'] ?? count($artworks);
+        ?>
+        
+        <?php if(!empty($artworks) && is_array($artworks)): ?>
+            <div class="techniques-count">
+                Найдено <?= count($artworks) ?> произведений из <?= $total ?> в коллекции
             </div>
-            <?php unset($_SESSION['api_data']); ?>
+            <div class="techniques-list">
+                <?php foreach($artworks as $artwork): ?>
+                    <div class="technique-item">
+                        <div class="artwork-title"><strong><?= htmlspecialchars($artwork['title'] ?? 'Без названия') ?></strong></div>
+                        <div class="artwork-artist">👨‍🎨 <?= htmlspecialchars($artwork['artist_display'] ?? 'Неизвестен') ?></div>
+                        <div class="artwork-technique">🎨 <?= htmlspecialchars($artwork['medium_display'] ?? 'Техника не указана') ?></div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            
+            <div class="api-source">
+                <em>Источник: Art Institute of Chicago API</em>
+            </div>
+            
+        <?php else: ?>
+            <div class="api-error">
+                <p>❌ Не удалось загрузить список художественных техник</p>
+                <p><small>Данные API: <?= htmlspecialchars(print_r($_SESSION['api_data'], true)) ?></small></p>
+            </div>
         <?php endif; ?>
+    </div>
+    <?php unset($_SESSION['api_data']); ?>
+<?php endif; ?>
 
         <!-- Информация о количестве записей -->
         <?php
