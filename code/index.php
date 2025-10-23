@@ -156,6 +156,47 @@
             border-left: 4px solid #28a745;
             color: #155724;
         }
+        .user-info {
+            background: #e8f4fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #3498db;
+        }
+        .api-data {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #ffc107;
+        }
+        .artworks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+        .artwork-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border: 1px solid #e9ecef;
+        }
+        .artwork-card img {
+            border-radius: 5px;
+            margin-top: 10px;
+            max-width: 100%;
+            height: auto;
+        }
+        .api-error {
+            background: #fde8e8;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #e74c3c;
+            color: #c0392b;
+        }
     </style>
 </head>
 <body>
@@ -210,6 +251,49 @@
             <?php unset($_SESSION['form_data']); ?>
         <?php endif; ?>
 
+        <!-- Информация о пользователе (ЛР-4) -->
+        <?php
+        require_once 'UserInfo.php';
+        $userInfo = UserInfo::getInfo();
+        ?>
+        <div class="user-info">
+            <h3>👤 Информация о вашем посещении:</h3>
+            <p><strong>IP-адрес:</strong> <?= htmlspecialchars($userInfo['ip']) ?></p>
+            <p><strong>Браузер:</strong> <?= UserInfo::getBrowserInfo() ?></p>
+            <p><strong>Время на сервере:</strong> <?= $userInfo['server_time'] ?></p>
+            <p><strong>Последняя отправка формы:</strong> <?= $userInfo['last_submission'] ?></p>
+        </div>
+
+        <?php if(isset($_SESSION['api_data']) && $_SESSION['api_data']['success']): ?>
+            <div class="api-data">
+                <h3>🎨 Примеры художественных техник из Art Institute of Chicago:</h3>
+                <div class="artworks-grid">
+                    <?php foreach($_SESSION['api_data']['data'] as $artwork): ?>
+                        <div class="artwork-card">
+                            <h4><?= htmlspecialchars($artwork['title'] ?? 'Без названия') ?></h4>
+                            <p><strong>Художник:</strong> <?= htmlspecialchars($artwork['artist_display'] ?? 'Неизвестен') ?></p>
+                            <p><strong>Дата:</strong> <?= htmlspecialchars($artwork['date_display'] ?? 'Не указана') ?></p>
+                            <p><strong>Техника:</strong> <?= htmlspecialchars($artwork['medium_display'] ?? 'Не указана') ?></p>
+                            <?php if(isset($artwork['image_id']) && $artwork['image_id']): ?>
+                                <img src="https://www.artic.edu/iiif/2/<?= $artwork['image_id'] ?>/full/200,/0/default.jpg" 
+                                     alt="<?= htmlspecialchars($artwork['title'] ?? '') ?>" 
+                                     loading="lazy">
+                            <?php else: ?>
+                                <p><em>Изображение недоступно</em></p>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php unset($_SESSION['api_data']); ?>
+        <?php elseif(isset($_SESSION['api_data'])): ?>
+            <div class="api-error">
+                <h3>❌ Ошибка при загрузке данных об искусстве:</h3>
+                <p><?= htmlspecialchars($_SESSION['api_data']['error'] ?? 'Неизвестная ошибка') ?></p>
+            </div>
+            <?php unset($_SESSION['api_data']); ?>
+        <?php endif; ?>
+
         <!-- Информация о количестве записей -->
         <?php
         $filename = "data.txt";
@@ -229,7 +313,6 @@
                 </a>
             </div>
         <?php endif; ?>
-
 
         <h2>📋 Быстрый доступ</h2>
         <div class="quick-links">
@@ -307,6 +390,27 @@
             </ul>
         </div>
 
+        <div class="lab-card">
+            <h3>🎨 Лабораторная работа №4 <span class="status-badge">Завершена</span></h3>
+            <p><strong>Тема:</strong> Composer, классы и работа с публичным API</p>
+            <div class="tech-stack">
+                <span class="tech-tag">Composer</span>
+                <span class="tech-tag">Guzzle HTTP</span>
+                <span class="tech-tag">API Integration</span>
+                <span class="tech-tag">PHP Classes</span>
+                <span class="tech-tag">Cookies</span>
+                <span class="tech-tag">Art Institute API</span>
+            </div>
+            <ul class="feature-list">
+                <li>Работа с Composer и внешними библиотеками (Guzzle)</li>
+                <li>Создание классов для работы с API</li>
+                <li>Интеграция Art Institute of Chicago API</li>
+                <li>Отображение художественных техник и произведений</li>
+                <li>Работа с куками для хранения информации о пользователе</li>
+                <li>Сбор информации о браузере и IP-адресе</li>
+            </ul>
+        </div>
+
         <h2>🛠️ Технологии проекта</h2>
         <div class="tech-stack">
             <span class="tech-tag">Docker</span>
@@ -320,6 +424,10 @@
             <span class="tech-tag">Git</span>
             <span class="tech-tag">Сессии PHP</span>
             <span class="tech-tag">Валидация форм</span>
+            <span class="tech-tag">Composer</span>
+            <span class="tech-tag">Guzzle HTTP</span>
+            <span class="tech-tag">REST API</span>
+            <span class="tech-tag">Cookies</span>
         </div>
     </div>
 
@@ -344,6 +452,15 @@
                     sessionData.style.transition = 'all 0.8s ease';
                     sessionData.style.opacity = '1';
                 }, 500);
+            }
+
+            const apiData = document.querySelector('.api-data');
+            if (apiData) {
+                apiData.style.opacity = '0';
+                setTimeout(() => {
+                    apiData.style.transition = 'all 0.8s ease';
+                    apiData.style.opacity = '1';
+                }, 700);
             }
         });
     </script>
