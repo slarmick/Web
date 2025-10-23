@@ -4,7 +4,7 @@ session_start();
 // Получаем данные из формы
 $name = htmlspecialchars($_POST['name'] ?? '');
 $birthdate = htmlspecialchars($_POST['birthdate'] ?? '');
-$technique = htmlspecialchars($_POST['technique'] ?? ''); // Изменено с topic на technique
+$topic = htmlspecialchars($_POST['topic'] ?? '');
 $format = htmlspecialchars($_POST['format'] ?? '');
 $materials = isset($_POST['materials']) ? 'Да' : 'Нет';
 $email = htmlspecialchars($_POST['email'] ?? '');
@@ -19,7 +19,6 @@ if (empty($name)) {
 if (empty($birthdate)) {
     $errors[] = "Дата рождения обязательна";
 } else {
-    // Проверяем, что возраст не менее 18 лет
     $birthDate = new DateTime($birthdate);
     $today = new DateTime();
     $age = $today->diff($birthDate)->y;
@@ -28,8 +27,8 @@ if (empty($birthdate)) {
     }
 }
 
-if (empty($technique)) {
-    $errors[] = "Выберите художественную технику";
+if (empty($topic)) {
+    $errors[] = "Выберите направление мастер-класса";
 }
 
 if (empty($format)) {
@@ -42,7 +41,6 @@ if (empty($email)) {
     $errors[] = "Некорректный формат email";
 }
 
-// Если есть ошибки - сохраняем их в сессию и возвращаем на главную
 if (!empty($errors)) {
     $_SESSION['errors'] = $errors;
     header("Location: index.php");
@@ -53,37 +51,27 @@ if (!empty($errors)) {
 $_SESSION['form_data'] = [
     'name' => $name,
     'birthdate' => $birthdate,
-    'technique' => $technique, // Изменено с topic на technique
+    'topic' => $topic,
     'format' => $format,
     'materials' => $materials,
     'email' => $email
 ];
 
-// Сохраняем данные в файл (обновляем разделитель)
-$dataLine = date('Y-m-d H:i:s') . ";" . $name . ";" . $birthdate . ";" . $technique . ";" . $format . ";" . $materials . ";" . $email . "\n";
+// Сохраняем данные в файл
+$dataLine = date('Y-m-d H:i:s') . ";" . $name . ";" . $birthdate . ";" . $topic . ";" . $format . ";" . $materials . ";" . $email . "\n";
 file_put_contents("data.txt", $dataLine, FILE_APPEND);
 
-try {
-    require_once 'ApiClient.php';
-    $api = new ApiClient();
-    
-    // Получаем примеры работ для выбранной художественной техники
-    $artData = $api->getArtworksByTechnique($technique);
+// Шаг 2 из задания: Интеграция API
+require_once 'ApiClient.php';
+$api = new ApiClient();
 
-    // Сохраняем данные API в сессию
-    $_SESSION['api_data'] = $artData;
-} catch (Exception $e) {
-    // Если API не работает, сохраняем ошибку
-    $_SESSION['api_data'] = [
-        'success' => false,
-        'error' => 'Не удалось загрузить примеры работ: ' . $e->getMessage()
-    ];
-}
+// Используем API Art Institute of Chicago
+$url = 'https://api.artic.edu/api/v1/artworks?limit=5';
+$apiData = $api->request($url);
 
-// Устанавливаем куку о последней отправке
+$_SESSION['api_data'] = $apiData;
+
 setcookie("last_submission", date('Y-m-d H:i:s'), time() + 3600, "/");
-
-// Перенаправляем на главную страницу
 header("Location: index.php");
 exit();
 ?>

@@ -197,6 +197,17 @@
             border-left: 4px solid #e74c3c;
             color: #c0392b;
         }
+        .api-raw-data {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
@@ -264,37 +275,23 @@
             <p><strong>Последняя отправка формы:</strong> <?= $userInfo['last_submission'] ?></p>
         </div>
 
-        <?php if(isset($_SESSION['api_data']) && $_SESSION['api_data']['success']): ?>
-    <div class="api-data">
-        <h3>🎨 Примеры работ в технике "<?= htmlspecialchars($_SESSION['api_data']['technique'] ?? '') ?>"</h3>
-        <p><em>Из коллекции Чикагского института искусств</em></p>
-        <div class="artworks-grid">
-            <?php foreach($_SESSION['api_data']['artworks'] as $artwork): ?>
-                <div class="artwork-card">
-                    <h4><?= htmlspecialchars($artwork['title'] ?? 'Без названия') ?></h4>
-                    <p><strong>Художник:</strong> <?= htmlspecialchars($artwork['artist_display'] ?? 'Неизвестен') ?></p>
-                    <p><strong>Дата:</strong> <?= htmlspecialchars($artwork['date_display'] ?? 'Не указана') ?></p>
-                    <p><strong>Техника:</strong> <?= htmlspecialchars($artwork['medium_display'] ?? 'Не указана') ?></p>
-                    <?php if(isset($artwork['image_url']) && $artwork['image_url']): ?>
-                        <img src="<?= htmlspecialchars($artwork['image_url']) ?>" 
-                             alt="<?= htmlspecialchars($artwork['title'] ?? '') ?>" 
-                             loading="lazy"
-                             style="max-width: 100%; height: auto; border-radius: 5px;">
-                    <?php else: ?>
-                        <p><em>Изображение недоступно</em></p>
-                    <?php endif; ?>
-                </div>
-            <?php endforeach; ?>
-        </div>
-    </div>
-    <?php unset($_SESSION['api_data']); ?>
-<?php elseif(isset($_SESSION['api_data'])): ?>
-    <div class="api-error">
-        <h3>❌ Ошибка при загрузке примеров работ:</h3>
-        <p><?= htmlspecialchars($_SESSION['api_data']['error'] ?? 'Неизвестная ошибка') ?></p>
-    </div>
-    <?php unset($_SESSION['api_data']); ?>
-<?php endif; ?>
+        <!-- Вывод данных из API -->
+        <?php if(isset($_SESSION['api_data'])): ?>
+            <div class="api-data">
+                <h3>🎨 Данные из API (Art Institute of Chicago):</h3>
+                <?php if(isset($_SESSION['api_data']['error'])): ?>
+                    <div class="api-error">
+                        <h4>❌ Ошибка API:</h4>
+                        <p><?= htmlspecialchars($_SESSION['api_data']['error']) ?></p>
+                    </div>
+                <?php else: ?>
+                    <div class="api-raw-data">
+                        <pre><?php echo htmlspecialchars(print_r($_SESSION['api_data'], true)); ?></pre>
+                    </div>
+                <?php endif; ?>
+            </div>
+            <?php unset($_SESSION['api_data']); ?>
+        <?php endif; ?>
 
         <!-- Информация о количестве записей -->
         <?php
