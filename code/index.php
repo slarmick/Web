@@ -263,19 +263,6 @@
     </style>
 </head>
 <body>
-    <!-- Отладочная панель -->
-    <div class="debug-panel">
-        <strong>🔧 Debug Session Data:</strong>
-        <div><strong>Has form_data:</strong> <?= isset($_SESSION['form_data']) ? 'YES' : 'NO' ?></div>
-        <div><strong>Has api_data:</strong> <?= isset($_SESSION['api_data']) ? 'YES' : 'NO' ?></div>
-        <?php if(isset($_SESSION['api_data'])): ?>
-            <div><strong>API Data count:</strong> <?= isset($_SESSION['api_data']['data']) ? count($_SESSION['api_data']['data']) : 'NO DATA ARRAY' ?></div>
-            <div><strong>API Structure:</strong> 
-                <pre style="font-size: 10px;"><?= htmlspecialchars(print_r(array_keys($_SESSION['api_data']), true)) ?></pre>
-            </div>
-        <?php endif; ?>
-    </div>
-
     <div class="container">
         <h1>🚀 Лабораторные работы по Docker & Nginx</h1>
 
