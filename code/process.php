@@ -9,7 +9,7 @@ $format = htmlspecialchars($_POST['format'] ?? '');
 $materials = isset($_POST['materials']) ? 'Да' : 'Нет';
 $email = htmlspecialchars($_POST['email'] ?? '');
 
-// Подтверждение данных
+// Валидация данных
 $errors = [];
 
 if (empty($name)) {
@@ -62,6 +62,23 @@ $_SESSION['form_data'] = [
 // Сохраняем данные в файл
 $dataLine = date('Y-m-d H:i:s') . ";" . $name . ";" . $birthdate . ";" . $topic . ";" . $format . ";" . $materials . ";" . $email . "\n";
 file_put_contents("data.txt", $dataLine, FILE_APPEND);
+
+try {
+    require_once 'ApiClient.php';
+    $api = new ApiClient();
+    $artData = $api->getArtTechniques();
+
+    // Сохраняем данные API в сессию
+    $_SESSION['api_data'] = $artData;
+} catch (Exception $e) {
+    // Если API не работает, сохраняем ошибку
+    $_SESSION['api_data'] = [
+        'success' => false,
+        'error' => 'Не удалось загрузить данные об искусстве: ' . $e->getMessage()
+    ];
+}
+
+setcookie("last_submission", date('Y-m-d H:i:s'), time() + 3600, "/");
 
 // Перенаправляем на главную страницу
 header("Location: index.php");
