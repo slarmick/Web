@@ -1,19 +1,21 @@
 ﻿services:
   web:
     image: nginx:1.27-alpine
-    container_name: lab2_nginx
+    container_name: lab4_nginx
     ports:
       - "3000:80"
     volumes:
-      - ./code:/var/www/html  # Меняем на путь PHP!
+      - ./code:/var/www/html
+      - ./vendor:/var/www/html/vendor  # Добавляем vendor
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - php
 
   php:
     image: php:8.2-fpm
-    container_name: lab2_php
+    container_name: lab4_php
     volumes:
-      - ./code:/var/www/html  # Одинаковый путь!
+      - ./code:/var/www/html
+      - ./vendor:/var/www/html/vendor  # Добавляем vendor
     expose:
       - "9000"
