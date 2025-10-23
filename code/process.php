@@ -1,5 +1,12 @@
 <?php
-session_start();
+// Явно запускаем сессию в начале
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Устанавливаем время жизни сессии
+ini_set('session.gc_maxlifetime', 3600);
+session_set_cookie_params(3600);
 
 // Получаем данные из формы
 $name = htmlspecialchars($_POST['name'] ?? '');
@@ -43,6 +50,8 @@ if (empty($email)) {
 
 if (!empty($errors)) {
     $_SESSION['errors'] = $errors;
+    // Явно сохраняем сессию
+    session_write_close();
     header("Location: index.php");
     exit();
 }
@@ -66,20 +75,17 @@ require_once 'ApiClient.php';
 $api = new ApiClient();
 
 // Используем API Art Institute of Chicago для получения списка художественных техник
-$url = 'https://api.artic.edu/api/v1/artworks?limit=10&fields=title,artist_display,medium_display';
+$url = 'https://api.artic.edu/api/v1/artworks?limit=5&fields=title,artist_display,medium_display';
 $apiData = $api->request($url);
-
-// Отладочная информация
-error_log("API Data received: " . print_r($apiData, true));
 
 // Сохраняем данные API в сессию для отображения на главной странице
 $_SESSION['api_data'] = $apiData;
 
-// Проверяем что данные сохранились в сессию
-error_log("Session data after API: " . print_r($_SESSION, true));
-
 // Устанавливаем куку о последней отправке формы
 setcookie("last_submission", date('Y-m-d H:i:s'), time() + 3600, "/");
+
+// Явно сохраняем сессию перед редиректом
+session_write_close();
 
 // Перенаправляем на главную страницу
 header("Location: index.php");
