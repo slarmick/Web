@@ -73,16 +73,16 @@ require_once 'ApiClient.php';
 $api = new ApiClient();
 
 // Используем API Art Institute of Chicago для получения списка художественных техник
-$url = 'https://api.artic.edu/api/v1/artworks?limit=5&fields=title,artist_display,medium_display';
+$url = 'https://api.artic.edu/api/v1/artworks?limit=10&fields=title,artist_display,medium_display';
 $apiData = $api->request($url);
 
-// Сохраняем данные API в сессию для отображения на главной странице
+// Сохраняем данные API в сессию для отображения на странице списка
 $_SESSION['api_data'] = $apiData;
 
 // Устанавливаем куку о последней отправке формы
 setcookie("last_submission", date('Y-m-d H:i:s'), time() + 3600, "/");
 
-// Перенаправляем на главную страницу
-header("Location: index.php");
+// Перенаправляем на страницу со списком художественных техник
+header("Location: techniques.php");
 exit();
 ?>
