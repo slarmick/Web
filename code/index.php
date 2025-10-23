@@ -265,34 +265,36 @@
         </div>
 
         <?php if(isset($_SESSION['api_data']) && $_SESSION['api_data']['success']): ?>
-            <div class="api-data">
-                <h3>🎨 Примеры художественных техник из Art Institute of Chicago:</h3>
-                <div class="artworks-grid">
-                    <?php foreach($_SESSION['api_data']['data'] as $artwork): ?>
-                        <div class="artwork-card">
-                            <h4><?= htmlspecialchars($artwork['title'] ?? 'Без названия') ?></h4>
-                            <p><strong>Художник:</strong> <?= htmlspecialchars($artwork['artist_display'] ?? 'Неизвестен') ?></p>
-                            <p><strong>Дата:</strong> <?= htmlspecialchars($artwork['date_display'] ?? 'Не указана') ?></p>
-                            <p><strong>Техника:</strong> <?= htmlspecialchars($artwork['medium_display'] ?? 'Не указана') ?></p>
-                            <?php if(isset($artwork['image_id']) && $artwork['image_id']): ?>
-                                <img src="https://www.artic.edu/iiif/2/<?= $artwork['image_id'] ?>/full/200,/0/default.jpg" 
-                                     alt="<?= htmlspecialchars($artwork['title'] ?? '') ?>" 
-                                     loading="lazy">
-                            <?php else: ?>
-                                <p><em>Изображение недоступно</em></p>
-                            <?php endif; ?>
-                        </div>
-                    <?php endforeach; ?>
+    <div class="api-data">
+        <h3>🎨 Примеры работ в технике "<?= htmlspecialchars($_SESSION['api_data']['technique'] ?? '') ?>"</h3>
+        <p><em>Из коллекции Чикагского института искусств</em></p>
+        <div class="artworks-grid">
+            <?php foreach($_SESSION['api_data']['artworks'] as $artwork): ?>
+                <div class="artwork-card">
+                    <h4><?= htmlspecialchars($artwork['title'] ?? 'Без названия') ?></h4>
+                    <p><strong>Художник:</strong> <?= htmlspecialchars($artwork['artist_display'] ?? 'Неизвестен') ?></p>
+                    <p><strong>Дата:</strong> <?= htmlspecialchars($artwork['date_display'] ?? 'Не указана') ?></p>
+                    <p><strong>Техника:</strong> <?= htmlspecialchars($artwork['medium_display'] ?? 'Не указана') ?></p>
+                    <?php if(isset($artwork['image_url']) && $artwork['image_url']): ?>
+                        <img src="<?= htmlspecialchars($artwork['image_url']) ?>" 
+                             alt="<?= htmlspecialchars($artwork['title'] ?? '') ?>" 
+                             loading="lazy"
+                             style="max-width: 100%; height: auto; border-radius: 5px;">
+                    <?php else: ?>
+                        <p><em>Изображение недоступно</em></p>
+                    <?php endif; ?>
                 </div>
-            </div>
-            <?php unset($_SESSION['api_data']); ?>
-        <?php elseif(isset($_SESSION['api_data'])): ?>
-            <div class="api-error">
-                <h3>❌ Ошибка при загрузке данных об искусстве:</h3>
-                <p><?= htmlspecialchars($_SESSION['api_data']['error'] ?? 'Неизвестная ошибка') ?></p>
-            </div>
-            <?php unset($_SESSION['api_data']); ?>
-        <?php endif; ?>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php unset($_SESSION['api_data']); ?>
+<?php elseif(isset($_SESSION['api_data'])): ?>
+    <div class="api-error">
+        <h3>❌ Ошибка при загрузке примеров работ:</h3>
+        <p><?= htmlspecialchars($_SESSION['api_data']['error'] ?? 'Неизвестная ошибка') ?></p>
+    </div>
+    <?php unset($_SESSION['api_data']); ?>
+<?php endif; ?>
 
         <!-- Информация о количестве записей -->
         <?php

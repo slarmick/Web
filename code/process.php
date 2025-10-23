@@ -4,7 +4,7 @@ session_start();
 // Получаем данные из формы
 $name = htmlspecialchars($_POST['name'] ?? '');
 $birthdate = htmlspecialchars($_POST['birthdate'] ?? '');
-$topic = htmlspecialchars($_POST['topic'] ?? '');
+$technique = htmlspecialchars($_POST['technique'] ?? ''); // Изменено с topic на technique
 $format = htmlspecialchars($_POST['format'] ?? '');
 $materials = isset($_POST['materials']) ? 'Да' : 'Нет';
 $email = htmlspecialchars($_POST['email'] ?? '');
@@ -28,8 +28,8 @@ if (empty($birthdate)) {
     }
 }
 
-if (empty($topic)) {
-    $errors[] = "Выберите тему мастер-класса";
+if (empty($technique)) {
+    $errors[] = "Выберите художественную технику";
 }
 
 if (empty($format)) {
@@ -53,20 +53,22 @@ if (!empty($errors)) {
 $_SESSION['form_data'] = [
     'name' => $name,
     'birthdate' => $birthdate,
-    'topic' => $topic,
+    'technique' => $technique, // Изменено с topic на technique
     'format' => $format,
     'materials' => $materials,
     'email' => $email
 ];
 
-// Сохраняем данные в файл
-$dataLine = date('Y-m-d H:i:s') . ";" . $name . ";" . $birthdate . ";" . $topic . ";" . $format . ";" . $materials . ";" . $email . "\n";
+// Сохраняем данные в файл (обновляем разделитель)
+$dataLine = date('Y-m-d H:i:s') . ";" . $name . ";" . $birthdate . ";" . $technique . ";" . $format . ";" . $materials . ";" . $email . "\n";
 file_put_contents("data.txt", $dataLine, FILE_APPEND);
 
 try {
     require_once 'ApiClient.php';
     $api = new ApiClient();
-    $artData = $api->getArtTechniques();
+    
+    // Получаем примеры работ для выбранной художественной техники
+    $artData = $api->getArtworksByTechnique($technique);
 
     // Сохраняем данные API в сессию
     $_SESSION['api_data'] = $artData;
@@ -74,10 +76,11 @@ try {
     // Если API не работает, сохраняем ошибку
     $_SESSION['api_data'] = [
         'success' => false,
-        'error' => 'Не удалось загрузить данные об искусстве: ' . $e->getMessage()
+        'error' => 'Не удалось загрузить примеры работ: ' . $e->getMessage()
     ];
 }
 
+// Устанавливаем куку о последней отправке
 setcookie("last_submission", date('Y-m-d H:i:s'), time() + 3600, "/");
 
 // Перенаправляем на главную страницу

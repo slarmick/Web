@@ -3,25 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Регистрация на мастер-класс</title>
+    <title>Регистрация на мастер-класс - Художественные техники</title>
     <style>
         body { 
             font-family: Arial, sans-serif; 
-            max-width: 600px; 
+            max-width: 700px; 
             margin: 50px auto; 
             padding: 20px;
-            background: #f5f5f5;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
         }
         .container {
             background: white;
             padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
         h1 { 
             color: #2c3e50; 
             text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
             margin-bottom: 30px;
+            font-size: 1.1em;
         }
         .form-group { 
             margin-bottom: 20px; 
@@ -39,6 +47,7 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             box-sizing: border-box;
+            font-size: 16px;
         }
         .radio-group, .checkbox-group { 
             display: flex; 
@@ -68,42 +77,63 @@
             content: " *";
             color: #e74c3c;
         }
-        .home-button {
-            background: #27ae60;
-            margin-top: 15px;
-        }
-        .home-button:hover {
-            background: #219a52;
-        }
-        .view-button {
-            background: #9b59b6;
-            margin-top: 15px;
-        }
-        .view-button:hover {
-            background: #8e44ad;
-        }
         .button-group {
             display: flex;
             gap: 10px;
-            margin-top: 20px;
+            margin-top: 25px;
         }
-        .button-group button {
+        .button-group button, .button-group a {
             flex: 1;
         }
-        .alert-info {
-            background: #d4edda;
-            border: 1px solid #c3e6cb;
-            color: #155724;
-            padding: 15px;
+        .nav-button {
+            background: #27ae60;
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
             border-radius: 5px;
-            margin: 20px 0;
             text-align: center;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: 2px solid #27ae60;
+        }
+        .nav-button:hover {
+            background: white;
+            color: #27ae60;
+            transform: translateY(-2px);
+        }
+        .loading {
+            text-align: center;
+            padding: 10px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+        .api-info {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #3498db;
+            font-size: 0.9em;
+        }
+        .technique-example {
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 5px 0;
+            border-left: 3px solid #ffc107;
+            font-size: 0.9em;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📚 Регистрация на мастер-класс</h1>        
+        <h1>🎨 Регистрация на мастер-класс</h1>
+        <div class="subtitle">Изучаем художественные техники из коллекции Чикагского института искусств</div>
+        
+        <div class="api-info">
+            <strong>ℹ️ Информация:</strong> Список художественных техник загружается из реальной коллекции музея через публичное API.
+        </div>
+        
         <form id="masterClassForm" action="process.php" method="POST">
             <div class="form-group">
                 <label for="name" class="required">ФИО участника:</label>
@@ -116,15 +146,11 @@
             </div>
 
             <div class="form-group">
-                <label for="topic" class="required">Тема мастер-класса:</label>
-                <select id="topic" name="topic" required>
-                    <option value="">-- Выберите тему --</option>
-                    <option value="webdev">Веб-разработка для начинающих</option>
-                    <option value="design">UI/UX дизайн</option>
-                    <option value="marketing">Цифровой маркетинг</option>
-                    <option value="data">Анализ данных с Python</option>
-                    <option value="mobile">Мобильная разработка</option>
+                <label for="technique" class="required">Художественная техника:</label>
+                <select id="technique" name="technique" required>
+                    <option value="">-- Загрузка техник из музея... --</option>
                 </select>
+                <div class="loading" id="loadingTechniques">⏳ Загружаем список художественных техник...</div>
             </div>
 
             <div class="form-group">
@@ -151,67 +177,110 @@
             </div>
 
             <div class="button-group">
-                <button type="submit">🎯 Зарегистрироваться через PHP</button>
+                <button type="submit">🎯 Зарегистрироваться на мастер-класс</button>
             </div>
         </form>
 
         <!-- Кнопки навигации -->
-        <div style="text-align: center; margin-top: 30px;">
-            <div class="button-group">
-                <a href="/" style="text-decoration: none; flex: 1;">
-                    <button type="button" class="home-button" style="width: 100%;">
-                        🏠 Вернуться на главную
-                    </button>
-                </a>
-                <a href="view.php" style="text-decoration: none; flex: 1;">
-                    <button type="button" class="view-button" style="width: 100%;">
-                        📊 Посмотреть все данные
-                    </button>
-                </a>
-            </div>
+        <div class="button-group">
+            <a href="/" class="nav-button">🏠 Главная страница</a>
+            <a href="view.php" class="nav-button">📊 Все записи</a>
         </div>
     </div>
 
     <script>
-        // Оставляем только alert для демонстрации введенных данных перед отправкой
+        // Загружаем художественные техники при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            loadArtTechniques();
+            
+            // Устанавливаем максимальную дату (18 лет назад)
+            const today = new Date();
+            const minDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+            document.getElementById('birthdate').max = minDate.toISOString().split('T')[0];
+        });
+
+        function loadArtTechniques() {
+            fetch('api-techniques.php')
+                .then(response => response.json())
+                .then(data => {
+                    const select = document.getElementById('technique');
+                    const loadingElement = document.getElementById('loadingTechniques');
+                    
+                    // Очищаем select
+                    select.innerHTML = '<option value="">-- Выберите художественную технику --</option>';
+                    
+                    if (data.success && data.techniques && data.techniques.length > 0) {
+                        // Добавляем техники из API
+                        data.techniques.forEach(technique => {
+                            const option = document.createElement('option');
+                            option.value = technique;
+                            option.textContent = technique;
+                            select.appendChild(option);
+                        });
+                        
+                        // Скрываем сообщение о загрузке
+                        loadingElement.style.display = 'none';
+                        
+                        // Показываем информацию об источнике
+                        showApiSuccess(data.techniques.length);
+                    } else {
+                        // Fallback - стандартные техники если API не работает
+                        const fallbackTechniques = [
+                            'Oil on canvas',
+                            'Watercolor on paper',
+                            'Bronze',
+                            'Graphite on paper',
+                            'Photograph',
+                            'Digital print',
+                            'Charcoal on paper',
+                            'Ink on paper',
+                            'Pastel on paper',
+                            'Tempera on panel'
+                        ];
+                        
+                        fallbackTechniques.forEach(tech => {
+                            const option = document.createElement('option');
+                            option.value = tech;
+                            option.textContent = tech;
+                            select.appendChild(option);
+                        });
+                        
+                        loadingElement.innerHTML = '⚠️ Используем базовый список техник (API временно недоступен)';
+                        loadingElement.style.color = '#e74c3c';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading techniques:', error);
+                    const loadingElement = document.getElementById('loadingTechniques');
+                    loadingElement.innerHTML = '❌ Ошибка загрузки техник. Проверьте подключение к интернету.';
+                    loadingElement.style.color = '#e74c3c';
+                });
+        }
+
+        function showApiSuccess(count) {
+            const apiInfo = document.querySelector('.api-info');
+            apiInfo.innerHTML = `✅ Загружено ${count} художественных техник из коллекции Чикагского института искусств`;
+            apiInfo.style.background = '#d4edda';
+            apiInfo.style.borderLeftColor = '#28a745';
+        }
+
+        // Обработка отправки формы
         document.getElementById("masterClassForm").addEventListener("submit", function(e) {
             const name = document.querySelector("[name='name']").value;
             const email = document.querySelector("[name='email']").value;
-            const topicSelect = document.querySelector("[name='topic']");
-            const topic = topicSelect.options[topicSelect.selectedIndex].text;
+            const techniqueSelect = document.querySelector("[name='technique']");
+            const technique = techniqueSelect.options[techniqueSelect.selectedIndex].text;
             const format = document.querySelector("[name='format']:checked");
             const formatText = format ? (format.value === 'online' ? 'Онлайн' : 'Очно') : 'Не выбран';
             const materials = document.querySelector("[name='materials']").checked ? 'Да' : 'Нет';
             
-            alert("Данные для отправки на сервер:\n\n" +
-                  "ФИО: " + name + "\n" +
-                  "Email: " + email + "\n" + 
-                  "Тема: " + topic + "\n" +
-                  "Формат: " + formatText + "\n" +
-                  "Материалы: " + materials + "\n\n" +
-                  "После подтверждения данные будут отправлены на сервер для обработки PHP.");
-        });
-
-        function getTopicName(topic) {
-            const topics = {
-                'webdev': 'Веб-разработка для начинающих',
-                'design': 'UI/UX дизайн', 
-                'marketing': 'Цифровой маркетинг',
-                'data': 'Анализ данных с Python',
-                'mobile': 'Мобильная разработка'
-            };
-            return topics[topic] || topic;
-        }
-
-        // Устанавливаем минимальную дату (18 лет назад)
-        window.addEventListener('load', function() {
-            const today = new Date();
-            const minDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
-            document.getElementById('birthdate').max = minDate.toISOString().split('T')[0];
-            
-            // Устанавливаем placeholder для даты
-            const birthdateInput = document.getElementById('birthdate');
-            birthdateInput.title = "Вы должны быть старше 18 лет";
+            alert("Регистрация на мастер-класс:\n\n" +
+                  "👤 ФИО: " + name + "\n" +
+                  "📧 Email: " + email + "\n" + 
+                  "🎨 Техника: " + technique + "\n" +
+                  "💻 Формат: " + formatText + "\n" +
+                  "📦 Материалы: " + materials + "\n\n" +
+                  "После подтверждения данные будут отправлены на сервер.");
         });
     </script>
 </body>

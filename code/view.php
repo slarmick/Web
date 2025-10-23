@@ -148,13 +148,13 @@
                 
                 $formatDisplay = $format == 'online' ? '🎥 Онлайн' : '🏢 Очно';
                 $materialsDisplay = $materials == 'Да' ? '✅ Да' : '❌ Нет';
-                $topicDisplay = $topicNames[$topic] ?? $topic;
+                $techniqueDisplay = htmlspecialchars($topic);
                 
                 echo "<tr>";
                 echo "<td>" . htmlspecialchars($datetime) . "</td>";
                 echo "<td>" . htmlspecialchars($name) . "</td>";
                 echo "<td>" . htmlspecialchars($birthdate) . "</td>";
-                echo "<td>" . htmlspecialchars($topicDisplay) . "</td>";
+                echo "<td>" . htmlspecialchars($techniqueDisplay) . "</td>";
                 echo "<td>" . $formatDisplay . "</td>";
                 echo "<td>" . $materialsDisplay . "</td>";
                 echo "<td>" . htmlspecialchars($email) . "</td>";

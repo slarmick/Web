@@ -9,13 +9,68 @@ class ApiClient {
         $this->client = new Client();
     }
 
+    /**
+     * Получает список художественных техник из API
+     */
     public function getArtTechniques(): array {
         try {
             $response = $this->client->get('https://api.artic.edu/api/v1/artworks', [
                 'query' => [
-                    'limit' => 10,
+                    'limit' => 100,
                     'fields' => 'id,title,artist_display,date_display,medium_display,image_id,thumbnail',
-                    'has_images' => 1  // Только с изображениями!
+                    'has_images' => 1
+                ]
+            ]);
+            
+            $body = $response->getBody()->getContents();
+            $data = json_decode($body, true);
+            
+            // Извлекаем уникальные художественные техники
+            $techniques = [];
+            $artworksByTechnique = [];
+            
+            foreach ($data['data'] ?? [] as $artwork) {
+                $technique = $artwork['medium_display'] ?? null;
+                if ($technique && !in_array($technique, $techniques)) {
+                    $techniques[] = $technique;
+                    $artworksByTechnique[$technique] = $artwork;
+                }
+                
+                // Ограничиваем количество техник
+                if (count($techniques) >= 15) {
+                    break;
+                }
+            }
+            
+            return [
+                'success' => true,
+                'techniques' => $techniques,
+                'artworks_by_technique' => $artworksByTechnique,
+                'all_artworks' => $data['data'] ?? []
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Получает примеры работ для конкретной техники
+     */
+    public function getArtworksByTechnique(string $technique): array {
+        try {
+            $response = $this->client->get('https://api.artic.edu/api/v1/artworks', [
+                'query' => [
+                    'limit' => 5,
+                    'fields' => 'id,title,artist_display,date_display,medium_display,image_id,thumbnail',
+                    'has_images' => 1,
+                    'query' => [
+                        'term' => [
+                            'medium_display' => $technique
+                        ]
+                    ]
                 ]
             ]);
             
@@ -32,8 +87,8 @@ class ApiClient {
             
             return [
                 'success' => true,
-                'data' => $processedArtworks,
-                'info' => $data['info'] ?? []
+                'technique' => $technique,
+                'artworks' => $processedArtworks
             ];
         } catch (\Exception $e) {
             return [
