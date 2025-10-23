@@ -200,7 +200,7 @@ docker-compose up -d --build
 - Сохранение данных API в сессии для отображения
 - Автоматический редирект на страницу с результатами
 
-![API load](screenshots\14_api_load.png)
+![API load](screenshots/14_api_load.png)
 
 #### Этап 5: Создание страницы художественных техник
 - Отдельная страница `techniques.php` для отображения результатов API
