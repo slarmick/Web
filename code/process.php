@@ -8,6 +8,10 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Подключаем классы для работы с БД
+require_once 'db.php';
+require_once 'MasterClassRegistration.php';
+
 // Получаем данные из формы
 $name = htmlspecialchars($_POST['name'] ?? '');
 $birthdate = htmlspecialchars($_POST['birthdate'] ?? '');
@@ -54,35 +58,53 @@ if (!empty($errors)) {
     exit();
 }
 
-// Сохраняем данные в сессию
-$_SESSION['form_data'] = [
-    'name' => $name,
-    'birthdate' => $birthdate,
-    'topic' => $topic,
-    'format' => $format,
-    'materials' => $materials,
-    'email' => $email
-];
+try {
+    // Сохраняем в базу данных
+    $registration = new MasterClassRegistration();
+    $dbSuccess = $registration->addRegistration($name, $birthdate, $topic, $format, $materials, $email);
 
-// Сохраняем данные в файл
-$dataLine = date('Y-m-d H:i:s') . ";" . $name . ";" . $birthdate . ";" . $topic . ";" . $format . ";" . $materials . ";" . $email . "\n";
-file_put_contents("data.txt", $dataLine, FILE_APPEND);
+    if (!$dbSuccess) {
+        throw new Exception("Ошибка сохранения в базу данных");
+    }
 
-// Шаг 2 из задания: Интеграция API после успешной обработки формы
-require_once 'ApiClient.php';
-$api = new ApiClient();
+    // Также сохраняем в файл для обратной совместимости
+    $dataLine = date('Y-m-d H:i:s') . ";" . $name . ";" . $birthdate . ";" . $topic . ";" . $format . ";" . $materials . ";" . $email . "\n";
+    file_put_contents("data.txt", $dataLine, FILE_APPEND);
 
-// Используем API Art Institute of Chicago для получения списка художественных техник
-$url = 'https://api.artic.edu/api/v1/artworks?limit=10&fields=title,artist_display,medium_display';
-$apiData = $api->request($url);
+    // Сохраняем данные в сессию
+    $_SESSION['form_data'] = [
+        'name' => $name,
+        'birthdate' => $birthdate,
+        'topic' => $topic,
+        'format' => $format,
+        'materials' => $materials,
+        'email' => $email
+    ];
 
-// Сохраняем данные API в сессию для отображения на странице списка
-$_SESSION['api_data'] = $apiData;
+    //Интеграция API после успешной обработки формы
+    require_once 'ApiClient.php';
+    $api = new ApiClient();
 
-// Устанавливаем куку о последней отправке формы
-setcookie("last_submission", date('Y-m-d H:i:s'), time() + 3600, "/");
+    // Используем API Art Institute of Chicago для получения списка художественных техник
+    $url = 'https://api.artic.edu/api/v1/artworks?limit=10&fields=title,artist_display,medium_display';
+    $apiData = $api->request($url);
 
-// Перенаправляем на страницу со списком художественных техник
-header("Location: techniques.php");
-exit();
+    // Сохраняем данные API в сессии для отображения на странице списка
+    $_SESSION['api_data'] = $apiData;
+
+    // Устанавливаем куку о последней отправке формы
+    setcookie("last_submission", date('Y-m-d H:i:s'), time() + 3600, "/");
+
+    // Перенаправляем на страницу со списком художественных техник
+    header("Location: techniques.php");
+    exit();
+
+} catch (Exception $e) {
+    // Обработка ошибок БД
+    error_log("Database error: " . $e->getMessage());
+    $errors[] = "Произошла ошибка при сохранении данных. Пожалуйста, попробуйте еще раз.";
+    $_SESSION['errors'] = $errors;
+    header("Location: index.php");
+    exit();
+}
 ?>
