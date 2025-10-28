@@ -3,7 +3,7 @@
     image: nginx:1.27-alpine
     container_name: lab4_nginx
     ports:
-      - "3000:80"
+      - "8080:80"
     volumes:
       - ./code:/var/www/html
       - ./vendor:/var/www/html/vendor  # Добавляем vendor
