@@ -327,6 +327,36 @@
             <p><strong>Последняя отправка формы:</strong> <?= $userInfo['last_submission'] ?></p>
         </div>
 
+<!-- Статистика базы данных -->
+<?php
+try {
+    require_once 'MasterClassRegistration.php';
+    $registration = new MasterClassRegistration();
+    $dbCount = $registration->getRegistrationCount();
+    
+    $filename = "data.txt";
+    $fileCount = 0;
+    if(file_exists($filename) && filesize($filename) > 0){
+        $lines = file($filename, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        $fileCount = count($lines);
+    }
+    
+    $totalRecords = $dbCount + $fileCount;
+?>
+    <div class="data-count">
+        <h3>📊 Статистика данных</h3>
+        <p>Всего сохраненных записей: <strong><?= $totalRecords ?></strong></p>
+        <p>В базе данных: <strong><?= $dbCount ?></strong> | В файле: <strong><?= $fileCount ?></strong></p>
+        <a href="/view.php" class="nav-button" style="display: inline-block; padding: 8px 20px; margin-top: 10px;">
+            📋 Посмотреть все данные
+        </a>
+    </div>
+<?php
+} catch (Exception $e) {
+    // Игнорируем ошибки БД на главной странице
+}
+?>
+
         <!-- Вывод списка художественных техник из API -->
         <?php if(isset($_SESSION['api_data'])): ?>
             <div class="api-data">
