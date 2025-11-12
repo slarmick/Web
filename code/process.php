@@ -71,9 +71,6 @@ try {
         throw new Exception("Ошибка сохранения в базу данных MySQL");
     }
 
-    // Получаем ID последней вставленной записи
-    $lastId = $registration->getLastInsertId();
-
     // Также сохраняем в файл для обратной совместимости
     $dataLine = date('Y-m-d H:i:s') . ";" . $name . ";" . $birthdate . ";" . $topic . ";" . $format . ";" . $materials . ";" . $email . "\n";
     file_put_contents("data.txt", $dataLine, FILE_APPEND);
@@ -85,8 +82,7 @@ try {
         'topic' => $topic,
         'format' => $format,
         'materials' => $materials,
-        'email' => $email,
-        'registration_id' => $lastId
+        'email' => $email
     ];
 
     // Записываем в Redis дополнительную информацию о сессии
@@ -102,15 +98,11 @@ try {
         $_SESSION['preferred_topic'] = $topic;
     }
 
-    // Шаг 2: Интеграция API после успешной обработки формы
+    // API вызов
     require_once 'ApiClient.php';
     $api = new ApiClient();
-
-    // Используем API Art Institute of Chicago для получения списка художественных техник
     $url = 'https://api.artic.edu/api/v1/artworks?limit=10&fields=title,artist_display,medium_display';
     $apiData = $api->request($url);
-
-    // Сохраняем данные API в сессии для отображения на странице списка
     $_SESSION['api_data'] = $apiData;
 
     // Устанавливаем куку о последней отправке формы
@@ -124,12 +116,11 @@ try {
     // Обработка ошибок
     error_log("Registration process error: " . $e->getMessage());
     
-    // Пытаемся сохранить хотя бы в файл, если другие методы не сработали
+    // Пытаемся сохранить хотя бы в файл
     try {
         $dataLine = date('Y-m-d H:i:s') . ";" . $name . ";" . $birthdate . ";" . $topic . ";" . $format . ";" . $materials . ";" . $email . "\n";
         file_put_contents("data.txt", $dataLine, FILE_APPEND);
         
-        // Сохраняем в сессию базовые данные
         $_SESSION['form_data'] = [
             'name' => $name,
             'birthdate' => $birthdate,
@@ -151,7 +142,6 @@ try {
         exit();
         
     } catch (Exception $fallbackError) {
-        // Если даже файловая система не работает
         $errors[] = "Произошла критическая ошибка при сохранении данных. Пожалуйста, попробуйте еще раз.";
         $_SESSION['errors'] = $errors;
         header("Location: index.php");
