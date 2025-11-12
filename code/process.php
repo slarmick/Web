@@ -88,6 +88,11 @@ try {
     // Используем API Art Institute of Chicago для получения списка художественных техник
     $url = 'https://api.artic.edu/api/v1/artworks?limit=10&fields=title,artist_display,medium_display';
     //$apiData = $api->request($url);
+$apiData = [
+    'data' => [
+        ['title' => 'Демо работа', 'artist_display' => 'Демо художник', 'medium_display' => 'Демо техника']
+    ]
+];
 
     // Сохраняем данные API в сессии для отображения на странице списка
     $_SESSION['api_data'] = $apiData;
