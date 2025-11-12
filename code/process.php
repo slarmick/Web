@@ -1,5 +1,7 @@
 <?php
-// Настройки сессии ДО запуска сессии
+// Настройки сессии для Redis
+ini_set('session.save_handler', 'redis');
+ini_set('session.save_path', 'tcp://redis:6379');
 ini_set('session.gc_maxlifetime', 3600);
 session_set_cookie_params(3600);
 
@@ -9,8 +11,10 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Подключаем классы для работы с БД
-require_once 'db.php';
+require_once 'Database.php';
 require_once 'MasterClassRegistration.php';
+require_once 'AnalyticsService.php';
+require_once 'SearchService.php';
 
 // Получаем данные из формы
 $name = htmlspecialchars($_POST['name'] ?? '');
@@ -59,29 +63,58 @@ if (!empty($errors)) {
 }
 
 try {
-    // Сохраняем в базу данных
+    // Сохраняем в MySQL базу данных
     $registration = new MasterClassRegistration();
     $dbSuccess = $registration->addRegistration($name, $birthdate, $topic, $format, $materials, $email);
 
     if (!$dbSuccess) {
-        throw new Exception("Ошибка сохранения в базу данных");
+        throw new Exception("Ошибка сохранения в базу данных MySQL");
+    }
+
+    // Получаем ID последней вставленной записи
+    $lastId = $registration->getLastInsertId();
+
+    // Сохраняем аналитику в ClickHouse
+    $analytics = new AnalyticsService();
+    $analyticsSuccess = $analytics->recordRegistration($name, $birthdate, $topic, $format, $materials, $email);
+    
+    if (!$analyticsSuccess) {
+        error_log("Warning: Failed to record analytics in ClickHouse");
+    }
+
+    // Индексируем в Elasticsearch для поиска
+    $search = new SearchService();
+    $userData = [
+        'name' => $name,
+        'email' => $email,
+        'topic' => $topic,
+        'format' => $format,
+        'birthdate' => $birthdate,
+        'materials' => $materials,
+        'created_at' => date('c')
+    ];
+    $searchSuccess = $search->indexUser($lastId, $userData);
+    
+    if (!$searchSuccess) {
+        error_log("Warning: Failed to index user in Elasticsearch");
     }
 
     // Также сохраняем в файл для обратной совместимости
     $dataLine = date('Y-m-d H:i:s') . ";" . $name . ";" . $birthdate . ";" . $topic . ";" . $format . ";" . $materials . ";" . $email . "\n";
     file_put_contents("data.txt", $dataLine, FILE_APPEND);
 
-    // Сохраняем данные в сессию
+    // Сохраняем данные в сессию (теперь хранится в Redis!)
     $_SESSION['form_data'] = [
         'name' => $name,
         'birthdate' => $birthdate,
         'topic' => $topic,
         'format' => $format,
         'materials' => $materials,
-        'email' => $email
+        'email' => $email,
+        'registration_id' => $lastId
     ];
 
-    //Интеграция API после успешной обработки формы
+    // Шаг 2: Интеграция API после успешной обработки формы
     require_once 'ApiClient.php';
     $api = new ApiClient();
 
@@ -95,16 +128,59 @@ try {
     // Устанавливаем куку о последней отправке формы
     setcookie("last_submission", date('Y-m-d H:i:s'), time() + 3600, "/");
 
+    // Записываем в Redis дополнительную информацию о сессии
+    if (isset($_SESSION['redis_initialized'])) {
+        $_SESSION['registration_count'] = ($_SESSION['registration_count'] ?? 0) + 1;
+        $_SESSION['last_registration_time'] = date('Y-m-d H:i:s');
+        $_SESSION['preferred_topic'] = $topic;
+    } else {
+        $_SESSION['redis_initialized'] = true;
+        $_SESSION['registration_count'] = 1;
+        $_SESSION['first_visit'] = date('Y-m-d H:i:s');
+        $_SESSION['last_registration_time'] = date('Y-m-d H:i:s');
+        $_SESSION['preferred_topic'] = $topic;
+    }
+
     // Перенаправляем на страницу со списком художественных техник
     header("Location: techniques.php");
     exit();
 
 } catch (Exception $e) {
-    // Обработка ошибок БД
-    error_log("Database error: " . $e->getMessage());
-    $errors[] = "Произошла ошибка при сохранении данных. Пожалуйста, попробуйте еще раз.";
-    $_SESSION['errors'] = $errors;
-    header("Location: index.php");
-    exit();
+    // Обработка ошибок
+    error_log("Registration process error: " . $e->getMessage());
+    
+    // Пытаемся сохранить хотя бы в файл, если другие методы не сработали
+    try {
+        $dataLine = date('Y-m-d H:i:s') . ";" . $name . ";" . $birthdate . ";" . $topic . ";" . $format . ";" . $materials . ";" . $email . "\n";
+        file_put_contents("data.txt", $dataLine, FILE_APPEND);
+        
+        // Сохраняем в сессию базовые данные
+        $_SESSION['form_data'] = [
+            'name' => $name,
+            'birthdate' => $birthdate,
+            'topic' => $topic,
+            'format' => $format,
+            'materials' => $materials,
+            'email' => $email
+        ];
+        
+        // Все равно делаем API вызов и редирект
+        require_once 'ApiClient.php';
+        $api = new ApiClient();
+        $url = 'https://api.artic.edu/api/v1/artworks?limit=10&fields=title,artist_display,medium_display';
+        $apiData = $api->request($url);
+        $_SESSION['api_data'] = $apiData;
+        setcookie("last_submission", date('Y-m-d H:i:s'), time() + 3600, "/");
+        
+        header("Location: techniques.php");
+        exit();
+        
+    } catch (Exception $fallbackError) {
+        // Если даже файловая система не работает
+        $errors[] = "Произошла критическая ошибка при сохранении данных. Пожалуйста, попробуйте еще раз.";
+        $_SESSION['errors'] = $errors;
+        header("Location: index.php");
+        exit();
+    }
 }
 ?>
