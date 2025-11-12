@@ -1,20 +1,20 @@
 <?php
-// Настройки сессии для Redis
+// НАЧАЛО ФАЙЛА - никакого вывода до этой точки!
+
+// Настройки сессии для Redis ДО любого вывода
 ini_set('session.save_handler', 'redis');
 ini_set('session.save_path', 'tcp://redis:6379');
 ini_set('session.gc_maxlifetime', 3600);
 session_set_cookie_params(3600);
 
-// Запускаем сессию
+// Запускаем сессию СРАЗУ
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Подключаем классы для работы с БД
+// Подключаем классы
 require_once 'Database.php';
 require_once 'MasterClassRegistration.php';
-require_once 'AnalyticsService.php';
-require_once 'SearchService.php';
 
 // Получаем данные из формы
 $name = htmlspecialchars($_POST['name'] ?? '');
@@ -74,31 +74,6 @@ try {
     // Получаем ID последней вставленной записи
     $lastId = $registration->getLastInsertId();
 
-    // Сохраняем аналитику в ClickHouse
-    $analytics = new AnalyticsService();
-    $analyticsSuccess = $analytics->recordRegistration($name, $birthdate, $topic, $format, $materials, $email);
-    
-    if (!$analyticsSuccess) {
-        error_log("Warning: Failed to record analytics in ClickHouse");
-    }
-
-    // Индексируем в Elasticsearch для поиска
-    $search = new SearchService();
-    $userData = [
-        'name' => $name,
-        'email' => $email,
-        'topic' => $topic,
-        'format' => $format,
-        'birthdate' => $birthdate,
-        'materials' => $materials,
-        'created_at' => date('c')
-    ];
-    $searchSuccess = $search->indexUser($lastId, $userData);
-    
-    if (!$searchSuccess) {
-        error_log("Warning: Failed to index user in Elasticsearch");
-    }
-
     // Также сохраняем в файл для обратной совместимости
     $dataLine = date('Y-m-d H:i:s') . ";" . $name . ";" . $birthdate . ";" . $topic . ";" . $format . ";" . $materials . ";" . $email . "\n";
     file_put_contents("data.txt", $dataLine, FILE_APPEND);
@@ -114,6 +89,19 @@ try {
         'registration_id' => $lastId
     ];
 
+    // Записываем в Redis дополнительную информацию о сессии
+    if (isset($_SESSION['redis_initialized'])) {
+        $_SESSION['registration_count'] = ($_SESSION['registration_count'] ?? 0) + 1;
+        $_SESSION['last_registration_time'] = date('Y-m-d H:i:s');
+        $_SESSION['preferred_topic'] = $topic;
+    } else {
+        $_SESSION['redis_initialized'] = true;
+        $_SESSION['registration_count'] = 1;
+        $_SESSION['first_visit'] = date('Y-m-d H:i:s');
+        $_SESSION['last_registration_time'] = date('Y-m-d H:i:s');
+        $_SESSION['preferred_topic'] = $topic;
+    }
+
     // Шаг 2: Интеграция API после успешной обработки формы
     require_once 'ApiClient.php';
     $api = new ApiClient();
@@ -127,19 +115,6 @@ try {
 
     // Устанавливаем куку о последней отправке формы
     setcookie("last_submission", date('Y-m-d H:i:s'), time() + 3600, "/");
-
-    // Записываем в Redis дополнительную информацию о сессии
-    if (isset($_SESSION['redis_initialized'])) {
-        $_SESSION['registration_count'] = ($_SESSION['registration_count'] ?? 0) + 1;
-        $_SESSION['last_registration_time'] = date('Y-m-d H:i:s');
-        $_SESSION['preferred_topic'] = $topic;
-    } else {
-        $_SESSION['redis_initialized'] = true;
-        $_SESSION['registration_count'] = 1;
-        $_SESSION['first_visit'] = date('Y-m-d H:i:s');
-        $_SESSION['last_registration_time'] = date('Y-m-d H:i:s');
-        $_SESSION['preferred_topic'] = $topic;
-    }
 
     // Перенаправляем на страницу со списком художественных техник
     header("Location: techniques.php");
