@@ -2,7 +2,7 @@
 class ApiClient {
     public function request(string $url): array {
         try {
-            // Прямой вызов API без демо-данных
+            // Прямой вызов API
             $response = file_get_contents($url, false, stream_context_create([
                 'ssl' => [
                     'verify_peer' => false,
@@ -32,7 +32,6 @@ class ApiClient {
             
         } catch (\Exception $e) {
             error_log("API Error: " . $e->getMessage());
-            // ВОЗВРАЩАЕМ ПУСТОЙ МАССИВ вместо демо-данных
             return [
                 'data' => [],
                 'pagination' => ['total' => 0]
