@@ -14,7 +14,3 @@
 2025-10-23 20:29:04;Здановский Даниил ;2007-10-06;webdev;online;Да;slarmick@yandex.ru
 2025-10-23 20:34:25;Даниил;2007-10-07;webdev;online;Да;zdanja1984@gmail.com
 2025-10-23 20:40:49;Здановский Даниил Станиславович;2007-10-18;data;offline;Да;zdanja1984@gmail.com
-2025-10-28 19:47:47;Здановский Даниил 2ПМ-ИИАД;2007-10-08;data;online;Да;zdanja2018@yandex.ru
-2025-11-12 15:10:17;Здановский Даниил Станиславович;2007-11-01;webdev;online;Да;zdanja1984@gmail.com
-2025-11-12 15:16:12;Здановский Даниил ;2007-11-01;webdev;online;Да;slarmick@yandex.ru
-2025-11-12 15:35:56;Здановский Даниил Станиславович;2007-11-04;design;online;Да;DZdanovskii@stud.kantiana.ru

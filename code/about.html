@@ -125,23 +125,6 @@
             margin: 10px 0;
             border-left: 4px solid #ffc107;
         }
-        .database-comparison {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-        .db-card {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            border-top: 4px solid;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .db-mysql { border-color: #00758f; }
-        .db-redis { border-color: #d82c20; }
-        .db-elastic { border-color: #00a6a6; }
-        .db-clickhouse { border-color: #ff6b00; }
     </style>
 </head>
 <body>
@@ -152,7 +135,6 @@
             <a href="/" class="nav-button">🏠 Главная</a>
             <a href="/master-class.html" class="nav-button">📚 Форма регистрации</a>
             <a href="/view.php" class="nav-button">📊 Просмотр данных</a>
-            <a href="/analytics.php" class="nav-button">📈 Аналитика</a>
             <a href="/info.php" class="nav-button">⚙️ PHP Info</a>
             <a href="/test.php" class="nav-button">🧪 PHP Test</a>
         </div>
@@ -166,70 +148,65 @@
         <h2>🎯 О проекте</h2>
         <p>Этот проект представляет собой серию лабораторных работ по изучению веб-программирования, контейнеризации и серверных технологий. Каждая лабораторная работа добавляет новый функционал и технологии к проекту.</p>
 
-        <!-- ЛАБОРАТОРНАЯ РАБОТА №6 -->
+	<!-- ЛАБОРАТОРНАЯ РАБОТА №5 -->
+<div class="lab-card">
+    <h3>🗄️ Лабораторная работа №5 <span class="status-badge">Завершена</span></h3>
+    <p><strong>Тема:</strong> Работа с базой данных MySQL через PHP и Docker</p>
+    <div class="tech-stack">
+        <span class="tech-tag">MySQL 8.0</span>
+        <span class="tech-tag">PDO</span>
+        <span class="tech-tag">Docker Compose</span>
+        <span class="tech-tag">Adminer</span>
+        <span class="tech-tag">PHP Classes</span>
+        <span class="tech-tag">Database Design</span>
+    </div>
+    <ul class="feature-list">
+        <li>Настройка MySQL контейнера в Docker Compose</li>
+        <li>Создание Dockerfile для PHP с расширениями MySQL</li>
+        <li>Разработка класса Database для работы с PDO</li>
+        <li>Создание таблицы master_class_registrations в MySQL</li>
+        <li>Класс MasterClassRegistration для CRUD операций</li>
+        <li>Интеграция Adminer для управления базой данных</li>
+        <li>Миграция данных из файловой системы в базу данных</li>
+        <li>Реализация удаления записей через AJAX</li>
+        <li>Обработка ошибок подключения к базе данных</li>
+        <li>Совместная работа с файловой системой и БД</li>
+    </ul>
+</div>
+
+        <!-- ЛАБОРАТОРНАЯ РАБОТА №4 -->
         <div class="lab-card">
-            <h3>🔴 Лабораторная работа №6 <span class="status-badge">Завершена</span></h3>
-            <p><strong>Тема:</strong> Нереляционные базы данных: Redis, Elasticsearch, ClickHouse</p>
+            <h3>🎨 Лабораторная работа №4 <span class="status-badge">Завершена</span></h3>
+            <p><strong>Тема:</strong> Composer, классы и работа с публичным API</p>
             <div class="tech-stack">
-                <span class="tech-tag">Redis 7</span>
-                <span class="tech-tag">Elasticsearch 8.10</span>
-                <span class="tech-tag">ClickHouse 24</span>
+                <span class="tech-tag">Composer</span>
                 <span class="tech-tag">Guzzle HTTP</span>
-                <span class="tech-tag">PHP Sessions</span>
-                <span class="tech-tag">Analytics</span>
-                <span class="tech-tag">Search Engine</span>
-                <span class="tech-tag">Docker Compose</span>
+                <span class="tech-tag">REST API</span>
+                <span class="tech-tag">PHP Classes</span>
+                <span class="tech-tag">Cookies</span>
+                <span class="tech-tag">Art Institute API</span>
+                <span class="tech-tag">Docker</span>
             </div>
             <ul class="feature-list">
-                <li>Миграция сессий PHP из файловой системы в Redis для высокой производительности</li>
-                <li>Индексация данных пользователей в Elasticsearch для полнотекстового поиска</li>
-                <li>Сбор аналитики регистраций в ClickHouse для быстрой агрегации больших данных</li>
-                <li>Создание дашборда аналитики с статистикой в реальном времени</li>
-                <li>Реализация поиска по пользователям через Elasticsearch REST API</li>
-                <li>Разработка многокомпонентной архитектуры с graceful degradation</li>
-                <li>Настройка Docker Compose с 4 различными базами данных</li>
-                <li>Создание сервисов AnalyticsService и SearchService для работы с NoSQL</li>
-                <li>Визуализация статуса всех компонентов системы на главной странице</li>
-                <li>Обработка ошибок при недоступности отдельных компонентов системы</li>
+                <li>Работа с Composer для управления зависимостями</li>
+                <li>Интеграция Guzzle HTTP клиента для работы с API</li>
+                <li>Создание класса ApiClient для работы с Art Institute of Chicago API</li>
+                <li>Получение данных о художественных техниках и произведениях искусства</li>
+                <li>Создание класса UserInfo для сбора информации о пользователе</li>
+                <li>Работа с куками для отслеживания времени последней отправки формы</li>
+                <li>Отображение IP-адреса, информации о браузере и времени сервера</li>
+                <li>Интеграция API данных в существующий процесс обработки формы</li>
+                <li>Обработка ошибок API с пользовательскими сообщениями</li>
+                <li>Отображение изображений картин из музея с использованием IIIF</li>
             </ul>
         </div>
 
-        <!-- Сравнение баз данных -->
-        <h2>🗃️ Используемые базы данных</h2>
-        <div class="database-comparison">
-            <div class="db-card db-mysql">
-                <h4>🗄️ MySQL</h4>
-                <p><strong>Назначение:</strong> Основное хранение данных</p>
-                <p><strong>Данные:</strong> Регистрации пользователей</p>
-                <p><strong>Порт:</strong> 3307</p>
-            </div>
-            <div class="db-card db-redis">
-                <h4>🔴 Redis</h4>
-                <p><strong>Назначение:</strong> Сессии и кеширование</p>
-                <p><strong>Данные:</strong> PHP сессии, счетчики</p>
-                <p><strong>Порт:</strong> 6379</p>
-            </div>
-            <div class="db-card db-elastic">
-                <h4>🔍 Elasticsearch</h4>
-                <p><strong>Назначение:</strong> Поиск и индексация</p>
-                <p><strong>Данные:</strong> Поисковый индекс пользователей</p>
-                <p><strong>Порт:</strong> 9200</p>
-            </div>
-            <div class="db-card db-clickhouse">
-                <h4>⚡ ClickHouse</h4>
-                <p><strong>Назначение:</strong> Аналитика и отчеты</p>
-                <p><strong>Данные:</strong> Метрики и статистика</p>
-                <p><strong>Порт:</strong> 8123</p>
-            </div>
-        </div>
-
-        <!-- Остальные лабораторные работы -->
         <div class="lab-card">
-            <h3>🗄️ Лабораторная работа №5 <span class="status-badge">Завершена</span></h3>
-            <p><strong>Тема:</strong> Работа с базой данных MySQL через PHP и Docker</p>
+            <h3>💻 Лабораторная работа №3 <span class="status-badge">Завершена</span></h3>
+            <p><strong>Тема:</strong> Обработка данных формы на PHP с сохранением в сессии и файл</p>
             <div class="tech-stack">
-                <span class="tech-tag">MySQL 8.0</span>
-                <span class="tech-tag">PDO</span>
+                <span class="tech-tag">PHP 8.2</span>
+                <span class="tech-tag">Сессии PHP</span>
                 <span class="tech-tag">Валидация данных</span>
                 <span class="tech-tag">Работа с файлами</span>
                 <span class="tech-tag">Формы HTML</span>
@@ -247,94 +224,144 @@
             </ul>
         </div>
 
-        <!-- Остальные лабораторные работы остаются без изменений -->
+        <div class="lab-card">
+            <h3>🔧 Лабораторная работа №2 <span class="status-badge">Завершена</span></h3>
+            <p><strong>Тема:</strong> Настройка Nginx + PHP-FPM. Основы HTML-форм и обработка на JavaScript.</p>
+            <div class="tech-stack">
+                <span class="tech-tag">PHP 8.2</span>
+                <span class="tech-tag">PHP-FPM</span>
+                <span class="tech-tag">JavaScript</span>
+                <span class="tech-tag">HTML Forms</span>
+                <span class="tech-tag">Docker Compose</span>
+            </div>
+            <ul class="feature-list">
+                <li>Настройка связки Nginx + PHP-FPM в Docker</li>
+                <li>Создание интерактивных HTML форм</li>
+                <li>JavaScript обработка без перезагрузки страницы</li>
+                <li>Валидация форм на клиентской стороне</li>
+                <li>Работа с различными типами полей ввода</li>
+                <li>Динамическое отображение результатов</li>
+            </ul>
+        </div>
 
-        <h2>📁 Структура проекта ЛР-6</h2>
+        <div class="lab-card">
+            <h3>🚀 Лабораторная работа №1 <span class="status-badge">Завершена</span></h3>
+            <p><strong>Тема:</strong> Веб-сервер в Docker (Nginx + HTML)</p>
+            <div class="tech-stack">
+                <span class="tech-tag">Docker</span>
+                <span class="tech-tag">Nginx</span>
+                <span class="tech-tag">HTML5</span>
+                <span class="tech-tag">CSS3</span>
+            </div>
+            <ul class="feature-list">
+                <li>Настройка Nginx в Docker контейнере</li>
+                <li>Создание кастомных HTML страниц</li>
+                <li>Настройка volumes для live-обновлений</li>
+                <li>Работа с портами и навигацией</li>
+                <li>Создание многостраничного веб-сайта</li>
+            </ul>
+        </div>
+
+        <h2>🛠️ Технологии проекта</h2>
+        <div class="tech-stack">
+            <span class="tech-tag">Docker</span>
+            <span class="tech-tag">Docker Compose</span>
+            <span class="tech-tag">Nginx 1.27</span>
+            <span class="tech-tag">PHP 8.2</span>
+            <span class="tech-tag">PHP-FPM</span>
+            <span class="tech-tag">HTML5</span>
+            <span class="tech-tag">CSS3</span>
+            <span class="tech-tag">JavaScript</span>
+            <span class="tech-tag">Git</span>
+            <span class="tech-tag">Сессии PHP</span>
+            <span class="tech-tag">Валидация форм</span>
+            <span class="tech-tag">Работа с файлами</span>
+            <span class="tech-tag">Composer</span>
+            <span class="tech-tag">Guzzle HTTP</span>
+            <span class="tech-tag">REST API</span>
+            <span class="tech-tag">Cookies</span>
+        </div>
+
+        <h2>📁 Структура проекта ЛР-5</h2>
         <div class="project-structure">
             <pre>
 nginx-lab/
-├── 🐳 Dockerfile              (обновленный для PHP с Redis)
-├── 🐳 docker-compose.yml      (обновленный с 4 БД)
+├── 🐳 Dockerfile              (новый для PHP с MySQL расширениями)
+├── 🐳 docker-compose.yml      (обновленный с MySQL и Adminer)
 ├── 📁 nginx/
 │   └── default.conf
 ├── 📁 code/
-│   ├── 🏠 index.php              (главная с аналитикой и Redis)
+│   ├── 🏠 index.php              (главная страница с сессиями и API данными)
 │   ├── 📝 master-class.html      (форма регистрации)
-│   ├── ⚙️ process.php            (обработчик + 4 БД)
-│   ├── 📊 view.php               (просмотр + поиск)
-│   ├── 📈 analytics.php          (НОВЫЙ - дашборд аналитики)
-│   ├── 🔍 SearchService.php      (НОВЫЙ - Elasticsearch)
-│   ├── 📊 AnalyticsService.php   (НОВЫЙ - ClickHouse)
-│   ├── 🗄️ Database.php           (MySQL подключение)
-│   ├── 🎓 MasterClassRegistration.php (CRUD операции)
-│   ├── 🔌 db.php                 (подключение к БД)
-│   ├── 🗑️ delete_registration.php (удаление записей)
+│   ├── ⚙️ process.php            (обработчик формы + API + БД интеграция)
+│   ├── 📊 view.php               (просмотр данных из БД и файла)
+│   ├── 🗑️ delete_registration.php (удаление записей из БД)
 │   ├── 👨‍💻 about.html            (эта страница)
 │   ├── 🧪 test.php               (тест PHP)
 │   ├── ⚙️ info.php               (информация о PHP)
-│   ├── 🌐 ApiClient.php          (Art Institute API)
-│   ├── 👤 UserInfo.php           (информация о пользователе)
+│   ├── 🌐 ApiClient.php          (класс для работы с Art Institute API)
+│   ├── 👤 UserInfo.php           (класс для информации о пользователе)
+│   ├── 🗄️ Database.php           (НОВЫЙ - класс для работы с БД)
+│   ├── 🎓 MasterClassRegistration.php (НОВЫЙ - класс для работы с таблицей)
+│   ├── 🔌 db.php                 (НОВЫЙ - подключение к БД)
 │   ├── 📁 vendor/                (зависимости Composer)
-│   └── 📄 data.txt               (файл для совместимости)
+│   └── 📄 data.txt               (файл с данными форм для обратной совместимости)
 ├── 📄 composer.json              (конфигурация Composer)
 ├── 📄 composer.lock              (lock-файл зависимостей)
 └── 📖 README.md
             </pre>
         </div>
 
-        <h2>🚀 Функциональность ЛР-6</h2>
+        <h2>🚀 Функциональность ЛР-5</h2>
         <div class="contact-info">
             <h3>Основные возможности:</h3>
             <ul class="feature-list">
-                <li><strong>Redis Sessions</strong> - высокопроизводительное хранение сессий</li>
-                <li><strong>Elasticsearch Search</strong> - полнотекстовый поиск по пользователям</li>
-                <li><strong>ClickHouse Analytics</strong> - аналитика в реальном времени</li>
-                <li><strong>Multi-Database Architecture</strong> - работа с 4 различными СУБД</li>
-                <li><strong>Graceful Degradation</strong> - система работает даже при недоступности компонентов</li>
-                <li><strong>Real-time Dashboard</strong> - дашборд с актуальной статистикой</li>
-                <li><strong>Docker Orchestration</strong> - управление 5 контейнерами через Docker Compose</li>
+                <li><strong>MySQL Database Integration</strong> - работа с реляционной базой данных</li>
+                <li><strong>Docker Multi-Container Setup</strong> - Nginx, PHP-FPM, MySQL, Adminer</li>
+                <li><strong>PDO Database Class</strong> - безопасная работа с БД через подготовленные запросы</li>
+                <li><strong>CRUD Operations</strong> - создание, чтение, удаление записей</li>
+                <li><strong>Data Migration</strong> - сохранение данных в БД и файл одновременно</li>
+                <li><strong>Adminer Integration</strong> - веб-интерфейс для управления БД</li>
+                <li><strong>AJAX Delete Functionality</strong> - удаление записей без перезагрузки страницы</li>
+                <li><strong>Error Handling</strong> - обработка ошибок подключения к БД</li>
             </ul>
             
-            <h3>Новые файлы ЛР-6:</h3>
+            <h3>Новые файлы ЛР-5:</h3>
             <ul class="feature-list">
-                <li><strong>AnalyticsService.php</strong> - работа с ClickHouse для аналитики</li>
-                <li><strong>SearchService.php</strong> - работа с Elasticsearch для поиска</li>
-                <li><strong>analytics.php</strong> - дашборд аналитики</li>
-                <li><strong>Обновленный Dockerfile</strong> - с расширением Redis</li>
-                <li><strong>Обновленный docker-compose.yml</strong> - с 4 базами данных</li>
+                <li><strong>Dockerfile</strong> - конфигурация PHP с MySQL расширениями</li>
+                <li><strong>Database.php</strong> - класс для работы с PDO и подключения к БД</li>
+                <li><strong>MasterClassRegistration.php</strong> - класс для CRUD операций с таблицей</li>
+                <li><strong>db.php</strong> - подключение к базе данных MySQL</li>
+                <li><strong>delete_registration.php</strong> - обработчик удаления записей через AJAX</li>
             </ul>
 
             <h3>Как использовать:</h3>
             <ol>
                 <li>Запустите проект: <code>docker-compose up -d --build</code></li>
                 <li>Откройте в браузере: <code>http://localhost:8080</code></li>
-                <li>Перейдите на форму регистрации и заполните данные</li>
+                <li>Перейдите на форму регистрации</li>
+                <li>Заполните и отправьте форму</li>
                 <li>Данные сохранятся в:
                     <ul>
-                        <li>🗄️ MySQL (основное хранение)</li>
-                        <li>🔴 Redis (сессии)</li>
-                        <li>🔍 Elasticsearch (поисковый индекс)</li>
-                        <li>⚡ ClickHouse (аналитика)</li>
-                        <li>📄 Файл data.txt (совместимость)</li>
+                        <li>🗄️ Базу данных MySQL (основное хранилище)</li>
+                        <li>📄 Файл data.txt (для обратной совместимости)</li>
                     </ul>
                 </li>
-                <li>Просмотр возможностей:
+                <li>Просмотр данных:
                     <ul>
-                        <li>📊 Все данные с поиском - view.php</li>
-                        <li>📈 Аналитика и графики - analytics.php</li>
-                        <li>⚙️ Управление БД - Adminer:8081</li>
-                        <li>🔍 Поиск по пользователям - через Elasticsearch</li>
+                        <li>📊 Все записи из БД и файла на странице view.php</li>
+                        <li>🗑️ Удаление записей из БД через кнопки в таблице</li>
+                        <li>⚙️ Управление БД через Adminer: <code>http://localhost:8081</code></li>
                     </ul>
                 </li>
             </ol>
 
-            <h3>Доступ к системам:</h3>
+            <h3>База данных:</h3>
             <div class="api-example">
-                <p><strong>Веб-сайт:</strong> http://localhost:8080</p>
-                <p><strong>Adminer (MySQL):</strong> http://localhost:8081</p>
-                <p><strong>Elasticsearch:</strong> http://localhost:9200</p>
-                <p><strong>ClickHouse:</strong> порт 8123 (HTTP), 9000 (Native)</p>
-                <p><strong>Redis:</strong> порт 6379</p>
+                <p><strong>Таблица:</strong> <code>master_class_registrations</code></p>
+                <p><strong>Поля:</strong> id, name, birthdate, topic, format, materials, email, created_at, updated_at</p>
+                <p><strong>Подключение к MySQL:</strong> порт 3307, база: lab5_db, пользователь: lab5_user</p>
+                <p><strong>Adminer:</strong> http://localhost:8081 (сервер: db, БД: lab5_db)</p>
             </div>
         </div>
 

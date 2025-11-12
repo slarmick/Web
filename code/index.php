@@ -260,59 +260,6 @@
             border: 2px solid #ff9800;
             border-radius: 5px;
         }
-        /* Новые стили для ЛР-6 */
-        .analytics-dashboard {
-            background: #e8f4fd;
-            padding: 25px;
-            border-radius: 10px;
-            margin: 25px 0;
-            border-left: 4px solid #9b59b6;
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-        .stat-card {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            border-top: 4px solid #3498db;
-        }
-        .stat-number {
-            font-size: 2.5em;
-            font-weight: bold;
-            color: #2c3e50;
-            margin: 10px 0;
-        }
-        .stat-label {
-            color: #7f8c8d;
-            font-size: 0.9em;
-        }
-        .redis-info {
-            background: #ffebee;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            border-left: 4px solid #e53935;
-        }
-        .database-status {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin: 15px 0;
-        }
-        .db-status {
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            font-weight: bold;
-        }
-        .db-mysql { background: #d4edda; color: #155724; }
-        .db-redis { background: #ffebee; color: #c62828; }
     </style>
 </head>
 <body>
@@ -324,81 +271,9 @@
             <a href="/about.html" class="nav-button">👨‍💻 О нас</a>
             <a href="/master-class.html" class="nav-button">📚 Форма регистрации</a>
             <a href="/view.php" class="nav-button">📊 Просмотр данных</a>
-            <a href="/analytics.php" class="nav-button">📈 Аналитика</a>
             <a href="/test.php" class="nav-button">🧪 PHP Test</a>
             <a href="/info.php" class="nav-button">⚙️ PHP Info</a>
         </div>
-
-        <!-- Статус баз данных -->
-        <div class="database-status">
-            <span class="db-status db-mysql">🗄️ MySQL</span>
-            <span class="db-status db-redis">🔴 Redis</span>
-        </div>
-
-        <!-- Дашборд аналитики -->
-        <?php
-        require_once 'MasterClassRegistration.php';
-        require_once 'AnalyticsService.php';
-        
-        try {
-            $registration = new MasterClassRegistration();
-            $analytics = new AnalyticsService();
-            
-            $mysqlStats = $registration->getRegistrationStats();
-            
-            $totalRegistrations = $mysqlStats['total'] ?? 0;
-            $todayRegistrations = $mysqlStats['today'] ?? 0;
-            $uniqueEmails = $registration->getUniqueEmails();
-            $avgPerDay = $registration->getAverageRegistrationsPerDay();
-            
-        } catch (Exception $e) {
-            // Игнорируем ошибки для главной страницы
-            $totalRegistrations = 0;
-            $todayRegistrations = 0;
-            $uniqueEmails = 0;
-            $avgPerDay = 0;
-        }
-        ?>
-        
-        <?php if($totalRegistrations > 0): ?>
-        <div class="analytics-dashboard">
-            <h2>📈 Аналитика регистраций</h2>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-number"><?= $totalRegistrations ?></div>
-                    <div class="stat-label">Всего регистраций</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number"><?= $todayRegistrations ?></div>
-                    <div class="stat-label">Сегодня</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number"><?= $uniqueEmails ?></div>
-                    <div class="stat-label">Уникальных email</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number"><?= $avgPerDay ?></div>
-                    <div class="stat-label">В день (среднее)</div>
-                </div>
-            </div>
-            <div style="text-align: center; margin-top: 15px;">
-                <a href="/analytics.php" class="nav-button" style="display: inline-block; padding: 8px 20px;">
-                    📊 Подробная аналитика
-                </a>
-            </div>
-        </div>
-        <?php endif; ?>
-
-        <!-- Redis информация о сессии -->
-        <?php if(isset($_SESSION['redis_initialized'])): ?>
-        <div class="redis-info">
-            <h3>🔴 Redis Session Info</h3>
-            <p><strong>Регистраций в этой сессии:</strong> <?= $_SESSION['registration_count'] ?? 1 ?></p>
-            <p><strong>Первое посещение:</strong> <?= $_SESSION['first_visit'] ?? date('Y-m-d H:i:s') ?></p>
-            <p><strong>Предпочтительная тема:</strong> <?= $_SESSION['preferred_topic'] ?? 'Не указана' ?></p>
-            <p><em>Сессия хранится в Redis</em></p>
-        </div>
-        <?php endif; ?>
 
         <!-- Вывод ошибок валидации -->
         <?php if(isset($_SESSION['errors'])): ?>
@@ -434,7 +309,7 @@
                 <p><strong>Формат:</strong> <?= $_SESSION['form_data']['format'] == 'online' ? '🎥 Онлайн' : '🏢 Очно' ?></p>
                 <p><strong>Материалы:</strong> <?= $_SESSION['form_data']['materials'] == 'Да' ? '✅ Да (+500₽)' : '❌ Нет' ?></p>
                 <p><strong>Email:</strong> <?= $_SESSION['form_data']['email'] ?></p>
-                <p><em>Данные сохранены в MySQL и Redis</em></p>
+                <p><em>Данные сохранены в сессии и записаны в файл data.txt</em></p>
             </div>
             <?php unset($_SESSION['form_data']); ?>
         <?php endif; ?>
@@ -450,8 +325,37 @@
             <p><strong>Браузер:</strong> <?= UserInfo::getBrowserInfo() ?></p>
             <p><strong>Время на сервере:</strong> <?= $userInfo['server_time'] ?></p>
             <p><strong>Последняя отправка формы:</strong> <?= $userInfo['last_submission'] ?></p>
-            <p><strong>ID сессии:</strong> <?= session_id() ?></p>
         </div>
+
+<!-- Статистика базы данных -->
+<?php
+try {
+    require_once 'MasterClassRegistration.php';
+    $registration = new MasterClassRegistration();
+    $dbCount = $registration->getRegistrationCount();
+    
+    $filename = "data.txt";
+    $fileCount = 0;
+    if(file_exists($filename) && filesize($filename) > 0){
+        $lines = file($filename, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        $fileCount = count($lines);
+    }
+    
+    $totalRecords = $dbCount + $fileCount;
+?>
+    <div class="data-count">
+        <h3>📊 Статистика данных</h3>
+        <p>Всего сохраненных записей: <strong><?= $totalRecords ?></strong></p>
+        <p>В базе данных: <strong><?= $dbCount ?></strong> | В файле: <strong><?= $fileCount ?></strong></p>
+        <a href="/view.php" class="nav-button" style="display: inline-block; padding: 8px 20px; margin-top: 10px;">
+            📋 Посмотреть все данные
+        </a>
+    </div>
+<?php
+} catch (Exception $e) {
+    // Игнорируем ошибки БД на главной странице
+}
+?>
 
         <!-- Вывод списка художественных техник из API -->
         <?php if(isset($_SESSION['api_data'])): ?>
@@ -492,6 +396,26 @@
             <?php unset($_SESSION['api_data']); ?>
         <?php endif; ?>
 
+        <!-- Информация о количестве записей -->
+        <?php
+        $filename = "data.txt";
+        $totalRecords = 0;
+        if(file_exists($filename) && filesize($filename) > 0){
+            $lines = file($filename, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            $totalRecords = count($lines);
+        }
+        ?>
+        
+        <?php if($totalRecords > 0): ?>
+            <div class="data-count">
+                <h3>📊 Статистика данных</h3>
+                <p>Всего сохраненных записей: <strong><?= $totalRecords ?></strong></p>
+                <a href="/view.php" class="nav-button" style="display: inline-block; padding: 8px 20px; margin-top: 10px;">
+                    📋 Посмотреть все данные
+                </a>
+            </div>
+        <?php endif; ?>
+
         <h2>📋 Быстрый доступ</h2>
         <div class="quick-links">
             <a href="/about.html" class="quick-link">
@@ -506,74 +430,45 @@
                 <h3>📊 Все данные</h3>
                 <p>Просмотр всех записей</p>
             </a>
-            <a href="/analytics.php" class="quick-link">
-                <h3>📈 Аналитика</h3>
-                <p>Статистика и графики</p>
+            <a href="/test.php" class="quick-link">
+                <h3>🧪 Тест PHP</h3>
+                <p>Проверка работы PHP</p>
             </a>
         </div>
 
-
         <div class="lab-card">
-            <h3>🔴 Лабораторная работа №6 <span class="status-badge">Завершена</span></h3>
-            <p><strong>Тема:</strong> Нереляционные базы данных: Redis</p>
+            <h3>🚀 Лабораторная работа №1 <span class="status-badge">Завершена</span></h3>
+            <p><strong>Тема:</strong> Веб-сервер в Docker (Nginx + HTML)</p>
             <div class="tech-stack">
-                <span class="tech-tag">Redis</span>
-                <span class="tech-tag">Guzzle HTTP</span>
-                <span class="tech-tag">PHP Sessions</span>
-                <span class="tech-tag">Analytics</span>
-                <span class="tech-tag">Search</span>
+                <span class="tech-tag">Docker</span>
+                <span class="tech-tag">Nginx</span>
+                <span class="tech-tag">HTML5</span>
+                <span class="tech-tag">CSS3</span>
             </div>
             <ul class="feature-list">
-                <li>Хранение сессий PHP в Redis для высокой производительности</li>
-                <li>Дашборд аналитики с статистикой в реальном времени</li>
-                <li>Многокомпонентная архитектура с отказоустойчивостью</li>
-                <li>Graceful degradation при недоступности компонентов</li>
+                <li>Настройка Nginx в Docker контейнере</li>
+                <li>Создание кастомных HTML страниц</li>
+                <li>Настройка volumes для live-обновлений</li>
+                <li>Работа с портами и навигацией</li>
             </ul>
         </div>
 
         <div class="lab-card">
-            <h3>🗄️ Лабораторная работа №5 <span class="status-badge">Завершена</span></h3>
-            <p><strong>Тема:</strong> Работа с базой данных MySQL через PHP и Docker</p>
+            <h3>🔧 Лабораторная работа №2 <span class="status-badge">Завершена</span></h3>
+            <p><strong>Тема:</strong> Настройка Nginx + PHP-FPM. Основы HTML-форм и обработка на JavaScript.</p>
             <div class="tech-stack">
-                <span class="tech-tag">MySQL 8.0</span>
-                <span class="tech-tag">PDO</span>
+                <span class="tech-tag">PHP 8.2</span>
+                <span class="tech-tag">PHP-FPM</span>
+                <span class="tech-tag">JavaScript</span>
+                <span class="tech-tag">HTML Forms</span>
                 <span class="tech-tag">Docker Compose</span>
-                <span class="tech-tag">Adminer</span>
-                <span class="tech-tag">PHP Classes</span>
-                <span class="tech-tag">Database Design</span>
             </div>
             <ul class="feature-list">
-                <li>Настройка MySQL контейнера в Docker Compose</li>
-                <li>Создание Dockerfile для PHP с расширениями MySQL</li>
-                <li>Разработка класса Database для работы с PDO</li>
-                <li>Создание таблицы master_class_registrations в MySQL</li>
-                <li>Класс MasterClassRegistration для CRUD операций</li>
-                <li>Интеграция Adminer для управления базой данных</li>
-                <li>Миграция данных из файловой системы в базу данных</li>
-                <li>Реализация удаления записей через AJAX</li>
-                <li>Обработка ошибок подключения к базе данных</li>
-                <li>Совместная работа с файловой системой и БД</li>
-            </ul>
-        </div>
-
-        <div class="lab-card">
-            <h3>🎨 Лабораторная работа №4 <span class="status-badge">Завершена</span></h3>
-            <p><strong>Тема:</strong> Composer, классы и работа с публичным API</p>
-            <div class="tech-stack">
-                <span class="tech-tag">Composer</span>
-                <span class="tech-tag">Guzzle HTTP</span>
-                <span class="tech-tag">API Integration</span>
-                <span class="tech-tag">PHP Classes</span>
-                <span class="tech-tag">Cookies</span>
-                <span class="tech-tag">Art Institute API</span>
-            </div>
-            <ul class="feature-list">
-                <li>Работа с Composer и внешними библиотеками (Guzzle)</li>
-                <li>Создание классов для работы с API</li>
-                <li>Интеграция Art Institute of Chicago API</li>
-                <li>Отображение художественных техник и произведений</li>
-                <li>Работа с куками для хранения информации о пользователе</li>
-                <li>Сбор информации о браузере и IP-адресе</li>
+                <li>Настройка связки Nginx + PHP-FPM</li>
+                <li>Создание интерактивных HTML форм</li>
+                <li>JavaScript обработка без перезагрузки страницы</li>
+                <li>Валидация форм на клиентской стороне</li>
+                <li>Работа с различными типами полей ввода</li>
             </ul>
         </div>
 
@@ -598,38 +493,23 @@
         </div>
 
         <div class="lab-card">
-            <h3>🔧 Лабораторная работа №2 <span class="status-badge">Завершена</span></h3>
-            <p><strong>Тема:</strong> Настройка Nginx + PHP-FPM. Основы HTML-форм и обработка на JavaScript.</p>
+            <h3>🎨 Лабораторная работа №4 <span class="status-badge">Завершена</span></h3>
+            <p><strong>Тема:</strong> Composer, классы и работа с публичным API</p>
             <div class="tech-stack">
-                <span class="tech-tag">PHP 8.2</span>
-                <span class="tech-tag">PHP-FPM</span>
-                <span class="tech-tag">JavaScript</span>
-                <span class="tech-tag">HTML Forms</span>
-                <span class="tech-tag">Docker Compose</span>
+                <span class="tech-tag">Composer</span>
+                <span class="tech-tag">Guzzle HTTP</span>
+                <span class="tech-tag">API Integration</span>
+                <span class="tech-tag">PHP Classes</span>
+                <span class="tech-tag">Cookies</span>
+                <span class="tech-tag">Art Institute API</span>
             </div>
             <ul class="feature-list">
-                <li>Настройка связки Nginx + PHP-FPM</li>
-                <li>Создание интерактивных HTML форм</li>
-                <li>JavaScript обработка без перезагрузки страницы</li>
-                <li>Валидация форм на клиентской стороне</li>
-                <li>Работа с различными типами полей ввода</li>
-            </ul>
-        </div>
-
-        <div class="lab-card">
-            <h3>🚀 Лабораторная работа №1 <span class="status-badge">Завершена</span></h3>
-            <p><strong>Тема:</strong> Веб-сервер в Docker (Nginx + HTML)</p>
-            <div class="tech-stack">
-                <span class="tech-tag">Docker</span>
-                <span class="tech-tag">Nginx</span>
-                <span class="tech-tag">HTML5</span>
-                <span class="tech-tag">CSS3</span>
-            </div>
-            <ul class="feature-list">
-                <li>Настройка Nginx в Docker контейнере</li>
-                <li>Создание кастомных HTML страниц</li>
-                <li>Настройка volumes для live-обновлений</li>
-                <li>Работа с портами и навигацией</li>
+                <li>Работа с Composer и внешними библиотеками (Guzzle)</li>
+                <li>Создание классов для работы с API</li>
+                <li>Интеграция Art Institute of Chicago API</li>
+                <li>Отображение художественных техник и произведений</li>
+                <li>Работа с куками для хранения информации о пользователе</li>
+                <li>Сбор информации о браузере и IP-адресе</li>
             </ul>
         </div>
 
@@ -640,8 +520,6 @@
             <span class="tech-tag">Nginx 1.27</span>
             <span class="tech-tag">PHP 8.2</span>
             <span class="tech-tag">PHP-FPM</span>
-            <span class="tech-tag">MySQL 8.0</span>
-            <span class="tech-tag">Redis</span>
             <span class="tech-tag">HTML5</span>
             <span class="tech-tag">CSS3</span>
             <span class="tech-tag">JavaScript</span>
@@ -652,8 +530,6 @@
             <span class="tech-tag">Guzzle HTTP</span>
             <span class="tech-tag">REST API</span>
             <span class="tech-tag">Cookies</span>
-            <span class="tech-tag">PDO</span>
-            <span class="tech-tag">Adminer</span>
         </div>
     </div>
 
@@ -687,15 +563,6 @@
                     apiData.style.transition = 'all 0.8s ease';
                     apiData.style.opacity = '1';
                 }, 700);
-            }
-
-            const analytics = document.querySelector('.analytics-dashboard');
-            if (analytics) {
-                analytics.style.opacity = '0';
-                setTimeout(() => {
-                    analytics.style.transition = 'all 0.8s ease';
-                    analytics.style.opacity = '1';
-                }, 300);
             }
         });
     </script>

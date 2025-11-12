@@ -1,7 +1,7 @@
 ﻿services:
   web:
     image: nginx:1.27-alpine
-    container_name: lab6_nginx
+    container_name: lab5_nginx
     ports:
       - "8080:80"
     volumes:
@@ -13,7 +13,7 @@
 
   php:
     build: .
-    container_name: lab6_php
+    container_name: lab5_php
     volumes:
       - ./code:/var/www/html
       - ./vendor:/var/www/html/vendor
@@ -21,33 +21,24 @@
       - "9000"
     depends_on:
       - db
-      - redis
 
   db:
     image: mysql:8.0
-    container_name: lab6_db
+    container_name: lab5_db
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: lab6_db
-      MYSQL_USER: lab6_user
-      MYSQL_PASSWORD: lab6_password  # ← Изменил пароль
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: lab5_db
+      MYSQL_USER: lab5_user
+      MYSQL_PASSWORD: lab5_pass
     ports:
       - "3307:3306"
     volumes:
       - db_data:/var/lib/mysql
-    command: --default-authentication-plugin=mysql_native_password  # ← Добавил эту строку
-
-  redis:
-    image: redis:7-alpine
-    container_name: lab6_redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
 
   adminer:
     image: adminer
-    container_name: lab6_adminer
+    container_name: lab5_adminer
+    restart: always
     ports:
       - "8081:8080"
     depends_on:
@@ -55,4 +46,3 @@
 
 volumes:
   db_data:
-  redis_data:

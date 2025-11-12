@@ -5,9 +5,9 @@ class Database {
 
     private function __construct() {
         $host = 'db';
-        $db   = 'lab6_db';
-        $user = 'lab6_user';
-        $pass = 'lab6_password';
+        $db   = 'lab5_db';
+        $user = 'lab5_user';
+        $pass = 'lab5_pass';
         $charset = 'utf8mb4';
 
         $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
@@ -20,9 +20,7 @@ class Database {
         try {
             $this->pdo = new PDO($dsn, $user, $pass, $options);
         } catch (\PDOException $e) {
-            // Логируем ошибку, но не выбрасываем исключение
-            error_log("MySQL Connection Error: " . $e->getMessage());
-            throw new \PDOException("Ошибка подключения к базе данных", (int)$e->getCode());
+            throw new \PDOException($e->getMessage(), (int)$e->getCode());
         }
     }
 

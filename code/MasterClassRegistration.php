@@ -5,19 +5,11 @@ class MasterClassRegistration {
     private $pdo;
 
     public function __construct() {
-        try {
-            $this->pdo = getDB();
-            $this->createTableIfNotExists();
-        } catch (Exception $e) {
-            // Логируем ошибку, но не прерываем выполнение
-            error_log("Database connection failed: " . $e->getMessage());
-            $this->pdo = null;
-        }
+        $this->pdo = getDB();
+        $this->createTableIfNotExists();
     }
 
     private function createTableIfNotExists() {
-        if (!$this->pdo) return false;
-
         $sql = "
         CREATE TABLE IF NOT EXISTS master_class_registrations (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -34,133 +26,42 @@ class MasterClassRegistration {
 
         try {
             $this->pdo->exec($sql);
-            return true;
         } catch (PDOException $e) {
             error_log("Ошибка создания таблицы: " . $e->getMessage());
-            return false;
         }
     }
 
     public function addRegistration($name, $birthdate, $topic, $format, $materials, $email) {
-        if (!$this->pdo) {
-            error_log("No database connection");
-            return false;
-        }
-
         $sql = "INSERT INTO master_class_registrations (name, birthdate, topic, format, materials, email) 
                 VALUES (?, ?, ?, ?, ?, ?)";
         
-        try {
-            $stmt = $this->pdo->prepare($sql);
-            return $stmt->execute([$name, $birthdate, $topic, $format, $materials, $email]);
-        } catch (PDOException $e) {
-            error_log("Ошибка добавления записи: " . $e->getMessage());
-            return false;
-        }
-    }
-
-    public function getLastInsertId() {
-        if (!$this->pdo) return null;
-        
-        try {
-            return $this->pdo->lastInsertId();
-        } catch (PDOException $e) {
-            error_log("Ошибка получения последнего ID: " . $e->getMessage());
-            return null;
-        }
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([$name, $birthdate, $topic, $format, $materials, $email]);
     }
 
     public function getAllRegistrations() {
-        if (!$this->pdo) return [];
-        
-        try {
-            $sql = "SELECT * FROM master_class_registrations ORDER BY created_at DESC";
-            $stmt = $this->pdo->query($sql);
-            return $stmt->fetchAll();
-        } catch (PDOException $e) {
-            error_log("Ошибка получения всех записей: " . $e->getMessage());
-            return [];
-        }
+        $sql = "SELECT * FROM master_class_registrations ORDER BY created_at DESC";
+        $stmt = $this->pdo->query($sql);
+        return $stmt->fetchAll();
     }
 
     public function getRegistrationCount() {
-        if (!$this->pdo) return 0;
-        
-        try {
-            $sql = "SELECT COUNT(*) as count FROM master_class_registrations";
-            $stmt = $this->pdo->query($sql);
-            $result = $stmt->fetch();
-            return $result['count'] ?? 0;
-        } catch (PDOException $e) {
-            error_log("Ошибка получения количества записей: " . $e->getMessage());
-            return 0;
-        }
+        $sql = "SELECT COUNT(*) as count FROM master_class_registrations";
+        $stmt = $this->pdo->query($sql);
+        return $stmt->fetch()['count'];
     }
 
-    // Остальные методы остаются аналогичными с проверкой $this->pdo
-    public function getRegistrationStats() {
-        if (!$this->pdo) return [];
-        
-        $stats = [];
-        try {
-            $stats['total'] = $this->getRegistrationCount();
-            
-            // По темам
-            $sql = "SELECT topic, COUNT(*) as count FROM master_class_registrations GROUP BY topic ORDER BY count DESC";
-            $stmt = $this->pdo->query($sql);
-            $stats['by_topic'] = $stmt->fetchAll();
-            
-            // По форматам
-            $sql = "SELECT format, COUNT(*) as count FROM master_class_registrations GROUP BY format";
-            $stmt = $this->pdo->query($sql);
-            $stats['by_format'] = $stmt->fetchAll();
-            
-            // По материалам
-            $sql = "SELECT materials, COUNT(*) as count FROM master_class_registrations GROUP BY materials";
-            $stmt = $this->pdo->query($sql);
-            $stats['by_materials'] = $stmt->fetchAll();
-            
-            // За сегодня
-            $sql = "SELECT COUNT(*) as count FROM master_class_registrations WHERE DATE(created_at) = CURDATE()";
-            $stmt = $this->pdo->query($sql);
-            $result = $stmt->fetch();
-            $stats['today'] = $result['count'] ?? 0;
-            
-        } catch (PDOException $e) {
-            error_log("Ошибка получения статистики: " . $e->getMessage());
-        }
-        
-        return $stats;
+    public function deleteRegistration($id) {
+        $sql = "DELETE FROM master_class_registrations WHERE id = ?";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([$id]);
     }
 
-    public function getUniqueEmails() {
-        if (!$this->pdo) return 0;
-        
-        try {
-            $sql = "SELECT COUNT(DISTINCT email) as count FROM master_class_registrations";
-            $stmt = $this->pdo->query($sql);
-            $result = $stmt->fetch();
-            return $result['count'] ?? 0;
-        } catch (PDOException $e) {
-            error_log("Ошибка получения уникальных email: " . $e->getMessage());
-            return 0;
-        }
-    }
-
-    public function getAverageRegistrationsPerDay() {
-        if (!$this->pdo) return 0;
-        
-        try {
-            $sql = "SELECT COUNT(*) / COUNT(DISTINCT DATE(created_at)) as avg_per_day 
-                    FROM master_class_registrations 
-                    WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)";
-            $stmt = $this->pdo->query($sql);
-            $result = $stmt->fetch();
-            return round($result['avg_per_day'] ?? 0, 2);
-        } catch (PDOException $e) {
-            error_log("Ошибка получения среднего количества: " . $e->getMessage());
-            return 0;
-        }
+    public function getRegistrationById($id) {
+        $sql = "SELECT * FROM master_class_registrations WHERE id = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$id]);
+        return $stmt->fetch();
     }
 }
 ?>
