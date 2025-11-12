@@ -27,14 +27,15 @@
     image: mysql:8.0
     container_name: lab6_db
     environment:
-      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: lab6_db
       MYSQL_USER: lab6_user
-      MYSQL_PASSWORD: lab6_pass
+      MYSQL_PASSWORD: lab6_password  # ← Изменил пароль
     ports:
       - "3307:3306"
     volumes:
       - db_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password  # ← Добавил эту строку
 
   redis:
     image: redis:7-alpine
