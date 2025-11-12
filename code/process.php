@@ -81,18 +81,8 @@ try {
         'email' => $email
     ];
 
-    //Интеграция API после успешной обработки формы
-    //require_once 'ApiClient.php';
-    //$api = new ApiClient();
-
-    // Используем API Art Institute of Chicago для получения списка художественных техник
-    $url = 'https://api.artic.edu/api/v1/artworks?limit=10&fields=title,artist_display,medium_display';
-    //$apiData = $api->request($url);
-$apiData = [
-    'data' => [
-        ['title' => 'Демо работа', 'artist_display' => 'Демо художник', 'medium_display' => 'Демо техника']
-    ]
-];
+    // 🔥 ПОДКЛЮЧЕНИЕ К API ART INSTITUTE OF CHICAGO
+    $apiData = getArtworksFromAPI();
 
     // Сохраняем данные API в сессии для отображения на странице списка
     $_SESSION['api_data'] = $apiData;
@@ -111,5 +101,112 @@ $apiData = [
     $_SESSION['errors'] = $errors;
     header("Location: index.php");
     exit();
+}
+
+/**
+ * Функция для получения данных из API Art Institute of Chicago
+ * Работает без Composer и Guzzle
+ */
+function getArtworksFromAPI() {
+    $url = 'https://api.artic.edu/api/v1/artworks?limit=8&fields=id,title,artist_display,medium_display,date_display,artist_title';
+    
+    try {
+        // Используем file_get_contents с контекстом для HTTPS
+        $context = stream_context_create([
+            'ssl' => [
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+            ],
+            'http' => [
+                'timeout' => 10,
+                'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            ]
+        ]);
+        
+        $response = @file_get_contents($url, false, $context);
+        
+        if ($response === false) {
+            throw new Exception('Не удалось подключиться к API');
+        }
+        
+        $data = json_decode($response, true);
+        
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new Exception('Ошибка декодирования JSON: ' . json_last_error_msg());
+        }
+        
+        return $data;
+        
+    } catch (Exception $e) {
+        // Если API не доступно, возвращаем демо-данные
+        error_log("API Error: " . $e->getMessage());
+        return getDemoArtData();
+    }
+}
+
+/**
+ * Демо-данные на случай недоступности API
+ */
+function getDemoArtData() {
+    return [
+        'data' => [
+            [
+                'id' => 1,
+                'title' => 'The Bedroom',
+                'artist_display' => 'Vincent van Gogh\nDutch, 1853-1890',
+                'artist_title' => 'Vincent van Gogh',
+                'medium_display' => 'Oil on canvas',
+                'date_display' => '1889'
+            ],
+            [
+                'id' => 2,
+                'title' => 'Water Lilies',
+                'artist_display' => 'Claude Monet\nFrench, 1840-1926',
+                'artist_title' => 'Claude Monet', 
+                'medium_display' => 'Oil on canvas',
+                'date_display' => '1916'
+            ],
+            [
+                'id' => 3,
+                'title' => 'American Gothic',
+                'artist_display' => 'Grant Wood\nAmerican, 1891-1942',
+                'artist_title' => 'Grant Wood',
+                'medium_display' => 'Oil on beaverboard',
+                'date_display' => '1930'
+            ],
+            [
+                'id' => 4,
+                'title' => 'Starry Night and the Astronauts',
+                'artist_display' => 'Alma Thomas\nAmerican, 1891-1978',
+                'artist_title' => 'Alma Thomas',
+                'medium_display' => 'Acrylic on canvas',
+                'date_display' => '1972'
+            ],
+            [
+                'id' => 5,
+                'title' => 'A Sunday on La Grande Jatte',
+                'artist_display' => 'Georges Seurat\nFrench, 1859-1891',
+                'artist_title' => 'Georges Seurat',
+                'medium_display' => 'Oil on canvas',
+                'date_display' => '1884'
+            ]
+        ],
+        'pagination' => [
+            'total' => 5,
+            'limit' => 8,
+            'offset' => 0,
+            'total_pages' => 1,
+            'current_page' => 1
+        ],
+        'info' => [
+            'license_text' => 'Demo data - API temporarily unavailable',
+            'license_links' => [],
+            'version' => '1.0'
+        ],
+        'config' => [
+            'iiif_url' => 'https://www.artic.edu/iiif/2',
+            'website_url' => 'https://www.artic.edu'
+        ]
+    ];
 }
 ?>

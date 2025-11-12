@@ -103,6 +103,11 @@
             border-radius: 5px;
             display: inline-block;
         }
+        .artwork-date {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
         .techniques-count {
             text-align: center;
             color: #7f8c8d;
@@ -135,6 +140,22 @@
             margin: 20px 0;
             border-left: 4px solid #3498db;
         }
+        .api-status {
+            text-align: center;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .api-live {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .api-demo {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
     </style>
 </head>
 <body>
@@ -165,7 +186,7 @@
                     echo $topicNames[$_SESSION['form_data']['topic']] ?? $_SESSION['form_data']['topic'];
                     ?>
                 </p>
-                <p><em>Ниже представлены примеры художественных техник для вдохновения</em></p>
+                <p><em>Ниже представлены примеры художественных техник из коллекции музея</em></p>
             </div>
             <?php unset($_SESSION['form_data']); ?>
         <?php endif; ?>
@@ -175,9 +196,19 @@
             <?php 
             $artworks = $_SESSION['api_data']['data'] ?? [];
             $total = $_SESSION['api_data']['pagination']['total'] ?? count($artworks);
+            $isDemoData = isset($_SESSION['api_data']['info']['license_text']) && 
+                         strpos($_SESSION['api_data']['info']['license_text'], 'Demo data') !== false;
             ?>
             
             <?php if(!empty($artworks) && is_array($artworks)): ?>
+                <div class="api-status <?= $isDemoData ? 'api-demo' : 'api-live' ?>">
+                    <?php if($isDemoData): ?>
+                        🔧 Используются демо-данные (API временно недоступен)
+                    <?php else: ?>
+                        ✅ Данные загружены из Art Institute of Chicago API
+                    <?php endif; ?>
+                </div>
+                
                 <div class="techniques-count">
                     🖼️ Найдено <strong><?= count($artworks) ?></strong> произведений из <strong><?= $total ?></strong> в коллекции музея
                 </div>
@@ -186,8 +217,11 @@
                     <?php foreach($artworks as $index => $artwork): ?>
                         <div class="technique-item">
                             <div class="artwork-title"><?= ($index + 1) ?>. <?= htmlspecialchars($artwork['title'] ?? 'Без названия') ?></div>
-                            <div class="artwork-artist">👨‍🎨 <?= htmlspecialchars($artwork['artist_display'] ?? 'Неизвестен') ?></div>
+                            <div class="artwork-artist">👨‍🎨 <?= htmlspecialchars($artwork['artist_display'] ?? ($artwork['artist_title'] ?? 'Неизвестен')) ?></div>
                             <div class="artwork-technique">🎨 <?= htmlspecialchars($artwork['medium_display'] ?? 'Техника не указана') ?></div>
+                            <?php if(isset($artwork['date_display'])): ?>
+                                <div class="artwork-date">📅 <?= htmlspecialchars($artwork['date_display']) ?></div>
+                            <?php endif; ?>
                         </div>
                     <?php endforeach; ?>
                 </div>
