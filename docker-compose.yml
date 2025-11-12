@@ -22,8 +22,6 @@
     depends_on:
       - db
       - redis
-      - elasticsearch
-      - clickhouse
 
   db:
     image: mysql:8.0
@@ -46,31 +44,6 @@
     volumes:
       - redis_data:/data
 
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
-    container_name: lab6_elastic
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ports:
-      - "9200:9200"
-    volumes:
-      - elastic_data:/usr/share/elasticsearch/data
-
-  clickhouse:
-    image: clickhouse/clickhouse-server:24
-    container_name: lab6_clickhouse
-    ports:
-      - "8123:8123"
-      - "9000:9000"
-    environment:
-      - CLICKHOUSE_DB=lab6_db
-      - CLICKHOUSE_USER=lab6_user
-      - CLICKHOUSE_PASSWORD=lab6_pass
-    volumes:
-      - clickhouse_data:/var/lib/clickhouse
-
   adminer:
     image: adminer
     container_name: lab6_adminer
@@ -82,5 +55,3 @@
 volumes:
   db_data:
   redis_data:
-  elastic_data:
-  clickhouse_data:
