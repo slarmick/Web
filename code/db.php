@@ -7,7 +7,7 @@ class Database {
         $host = 'db';
         $db   = 'lab6_db';
         $user = 'lab6_user';
-        $pass = 'lab6_password';  // ← Новый пароль
+        $pass = 'lab6_password';
         $charset = 'utf8mb4';
 
         $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
