@@ -13,7 +13,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Подключаем классы
-require_once 'Database.php';
+require_once 'db.php';
 require_once 'MasterClassRegistration.php';
 
 // Получаем данные из формы
