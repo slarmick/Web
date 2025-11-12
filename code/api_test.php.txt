@@ -1,0 +1,27 @@
+<?php
+require_once 'ApiClient.php';
+
+$api = new ApiClient();
+$url = 'https://api.artic.edu/api/v1/artworks?limit=5&fields=title,artist_display,medium_display';
+
+echo "<h1>Тест API</h1>";
+echo "<p>URL: $url</p>";
+
+$result = $api->request($url);
+
+echo "<h2>Результат:</h2>";
+echo "<pre>" . print_r($result, true) . "</pre>";
+
+if (!empty($result['data'])) {
+    echo "<h3>Найдено произведений: " . count($result['data']) . "</h3>";
+    foreach ($result['data'] as $artwork) {
+        echo "<div style='border:1px solid #ccc; padding:10px; margin:5px;'>";
+        echo "<strong>" . ($artwork['title'] ?? 'Без названия') . "</strong><br>";
+        echo "Художник: " . ($artwork['artist_display'] ?? 'Неизвестен') . "<br>";
+        echo "Техника: " . ($artwork['medium_display'] ?? 'Не указана');
+        echo "</div>";
+    }
+} else {
+    echo "<p style='color:red;'>Произведения не найдены или API недоступно</p>";
+}
+?>

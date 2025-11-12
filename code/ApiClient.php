@@ -1,56 +1,41 @@
 <?php
-require_once __DIR__ . '/vendor/autoload.php';
-use GuzzleHttp\Client;
-
 class ApiClient {
-    private Client $client;
-
-    public function __construct() {
-        $this->client = new Client([
-            'timeout' => 10,
-            'verify' => false
-        ]);
-    }
-
     public function request(string $url): array {
         try {
-            $response = $this->client->get($url);
-            $body = $response->getBody()->getContents();
-            return json_decode($body, true);
-        } catch (\Exception $e) {
-            // Если API не работает, возвращаем демо-данные
-            error_log("API Error: " . $e->getMessage());
-            return [
-                'data' => [
-                    [
-                        'title' => 'The Bedroom',
-                        'artist_display' => 'Vincent van Gogh',
-                        'medium_display' => 'Oil on canvas'
-                    ],
-                    [
-                        'title' => 'Water Lilies', 
-                        'artist_display' => 'Claude Monet',
-                        'medium_display' => 'Oil on canvas'
-                    ],
-                    [
-                        'title' => 'American Gothic',
-                        'artist_display' => 'Grant Wood',
-                        'medium_display' => 'Oil on beaverboard'
-                    ],
-                    [
-                        'title' => 'Starry Night',
-                        'artist_display' => 'Vincent van Gogh',
-                        'medium_display' => 'Oil on canvas'
-                    ],
-                    [
-                        'title' => 'The Persistence of Memory',
-                        'artist_display' => 'Salvador Dali',
-                        'medium_display' => 'Oil on canvas'
-                    ]
+            // Прямой вызов API без демо-данных
+            $response = file_get_contents($url, false, stream_context_create([
+                'ssl' => [
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
                 ],
-                'pagination' => [
-                    'total' => 5
+                'http' => [
+                    'timeout' => 15,
+                    'ignore_errors' => true
                 ]
+            ]));
+            
+            if ($response === false) {
+                throw new Exception('Не удалось подключиться к API');
+            }
+            
+            $data = json_decode($response, true);
+            
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new Exception('Ошибка декодирования JSON: ' . json_last_error_msg());
+            }
+            
+            if (!isset($data['data'])) {
+                throw new Exception('Некорректный ответ от API');
+            }
+            
+            return $data;
+            
+        } catch (\Exception $e) {
+            error_log("API Error: " . $e->getMessage());
+            // ВОЗВРАЩАЕМ ПУСТОЙ МАССИВ вместо демо-данных
+            return [
+                'data' => [],
+                'pagination' => ['total' => 0]
             ];
         }
     }

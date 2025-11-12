@@ -1,4 +1,6 @@
-<?php session_start(); ?>
+<?php 
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -26,12 +28,6 @@
             text-align: center;
             margin-bottom: 10px;
             font-size: 2.5em;
-        }
-        .subtitle {
-            text-align: center;
-            color: #7f8c8d;
-            margin-bottom: 30px;
-            font-size: 1.1em;
         }
         .nav-buttons {
             display: flex;
@@ -92,22 +88,24 @@
             color: #3498db;
             margin-bottom: 8px;
             font-style: italic;
-            font-size: 1.1em;
         }
         .artwork-technique {
             color: #e74c3c;
             font-weight: bold;
-            font-size: 1.1em;
-            padding: 8px 12px;
             background: #fde8e8;
+            padding: 5px 10px;
             border-radius: 5px;
             display: inline-block;
+        }
+        .artwork-date {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-top: 5px;
         }
         .techniques-count {
             text-align: center;
             color: #7f8c8d;
             margin-bottom: 20px;
-            font-size: 1em;
             padding: 10px;
             background: #f8f9fa;
             border-radius: 8px;
@@ -128,19 +126,23 @@
             color: #c0392b;
             text-align: center;
         }
-        .registration-info {
-            background: #e8f4fd;
+        .empty-message {
+            background: #fff3cd;
             padding: 20px;
             border-radius: 10px;
             margin: 20px 0;
-            border-left: 4px solid #3498db;
+            border-left: 4px solid #ffc107;
+            color: #856404;
+            text-align: center;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🎨 Список художественных техник</h1>
-        <div class="subtitle">Примеры различных художественных техник из коллекции Чикагского института искусств</div>
+        <div style="text-align: center; color: #7f8c8d; margin-bottom: 30px;">
+            Примеры различных художественных техник из коллекции Чикагского института искусств
+        </div>
 
         <div class="nav-buttons">
             <a href="/" class="nav-button">🏠 Главная</a>
@@ -165,7 +167,7 @@
                     echo $topicNames[$_SESSION['form_data']['topic']] ?? $_SESSION['form_data']['topic'];
                     ?>
                 </p>
-                <p><em>Ниже представлены примеры художественных техник для вдохновения</em></p>
+                <p><em>Ниже представлены реальные произведения искусства из коллекции музея</em></p>
             </div>
             <?php unset($_SESSION['form_data']); ?>
         <?php endif; ?>
@@ -174,63 +176,59 @@
         <?php if(isset($_SESSION['api_data'])): ?>
             <?php 
             $artworks = $_SESSION['api_data']['data'] ?? [];
-            $total = $_SESSION['api_data']['pagination']['total'] ?? count($artworks);
+            $total = $_SESSION['api_data']['pagination']['total'] ?? 0;
             ?>
             
             <?php if(!empty($artworks) && is_array($artworks)): ?>
                 <div class="techniques-count">
-                    🖼️ Найдено <strong><?= count($artworks) ?></strong> произведений из <strong><?= $total ?></strong> в коллекции музея
+                    🖼️ Загружено <strong><?= count($artworks) ?></strong> произведений из <strong><?= $total ?></strong> в коллекции музея
                 </div>
                 
                 <div class="techniques-list">
                     <?php foreach($artworks as $index => $artwork): ?>
                         <div class="technique-item">
                             <div class="artwork-title"><?= ($index + 1) ?>. <?= htmlspecialchars($artwork['title'] ?? 'Без названия') ?></div>
-                            <div class="artwork-artist">👨‍🎨 <?= htmlspecialchars($artwork['artist_display'] ?? 'Неизвестен') ?></div>
+                            <div class="artwork-artist">👨‍🎨 <?= htmlspecialchars($artwork['artist_display'] ?? 'Автор не указан') ?></div>
+                            <?php if(!empty($artwork['date_display'])): ?>
+                                <div class="artwork-date">📅 <?= htmlspecialchars($artwork['date_display']) ?></div>
+                            <?php endif; ?>
                             <div class="artwork-technique">🎨 <?= htmlspecialchars($artwork['medium_display'] ?? 'Техника не указана') ?></div>
                         </div>
                     <?php endforeach; ?>
                 </div>
                 
                 <div class="api-source">
-                    <em>Данные предоставлены Art Institute of Chicago API</em>
+                    <em>Реальные данные из Art Institute of Chicago API</em>
                 </div>
                 
             <?php else: ?>
-                <div class="error-message">
-                    <h3>❌ Не удалось загрузить список художественных техник</h3>
-                    <p>Попробуйте обновить страницу или вернуться позже</p>
+                <div class="empty-message">
+                    <h3>🖼️ Произведения не найдены</h3>
+                    <p>В данный момент коллекция музея недоступна или пуста</p>
+                    <p><small>Попробуйте отправить форму позже</small></p>
                 </div>
             <?php endif; ?>
             
             <?php unset($_SESSION['api_data']); ?>
         <?php else: ?>
             <div class="error-message">
-                <h3>❌ Данные не найдены</h3>
-                <p>Для просмотра списка художественных техник необходимо сначала зарегистрироваться через форму</p>
+                <h3>❌ Данные не загружены</h3>
+                <p>Для просмотра художественных техник необходимо сначала зарегистрироваться через форму</p>
                 <a href="/master-class.html" class="nav-button" style="display: inline-block; margin-top: 15px;">
                     📝 Перейти к регистрации
                 </a>
             </div>
         <?php endif; ?>
 
-        <!-- Дополнительная информация -->
-        <div class="registration-info">
-            <h3>💡 О проекте</h3>
-            <p>Этот список демонстрирует разнообразие художественных техник, используемых в произведениях искусства из коллекции одного из крупнейших музеев мира.</p>
-            <p>Каждая техника имеет свои уникальные особенности и требует специальных навыков для освоения.</p>
-        </div>
-
         <div class="nav-buttons">
-            <a href="/master-class.html" class="nav-button">📝 Зарегистрироваться снова</a>
-            <a href="/view.php" class="nav-button">📊 Посмотреть все записи</a>
+            <a href="/master-class.html" class="nav-button">📝 Новая регистрация</a>
+            <a href="/view.php" class="nav-button">📊 Все записи</a>
             <a href="/" class="nav-button">🏠 На главную</a>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Анимация появления элементов
             const items = document.querySelectorAll('.technique-item');
             items.forEach((item, index) => {
                 item.style.opacity = '0';

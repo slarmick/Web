@@ -1,7 +1,4 @@
 <?php
-// НАЧАЛО ФАЙЛА - никакого вывода до этой точки!
-
-// Настройки сессии для Redis ДО любого вывода
 ini_set('session.save_handler', 'redis');
 ini_set('session.save_path', 'tcp://redis:6379');
 ini_set('session.gc_maxlifetime', 3600);
@@ -62,95 +59,100 @@ if (!empty($errors)) {
     exit();
 }
 
-// Флаг успешного сохранения
-$success = false;
-
 try {
     // Сохраняем в MySQL базу данных
     $registration = new MasterClassRegistration();
     $dbSuccess = $registration->addRegistration($name, $birthdate, $topic, $format, $materials, $email);
 
-    if ($dbSuccess) {
-        $success = true;
-    } else {
-        error_log("MySQL save failed, but continuing...");
+    if (!$dbSuccess) {
+        throw new Exception("Ошибка сохранения в базу данных MySQL");
     }
 
-} catch (Exception $e) {
-    error_log("MySQL error: " . $e->getMessage());
-    // Продолжаем выполнение даже при ошибке БД
-}
+    // Получаем ID последней вставленной записи
+    $lastId = $registration->getLastInsertId();
 
-// ВСЕГДА сохраняем в файл для обратной совместимости
-try {
+    // Также сохраняем в файл для обратной совместимости
     $dataLine = date('Y-m-d H:i:s') . ";" . $name . ";" . $birthdate . ";" . $topic . ";" . $format . ";" . $materials . ";" . $email . "\n";
     file_put_contents("data.txt", $dataLine, FILE_APPEND);
-    $success = true; // Если файл сохранился, считаем успехом
-} catch (Exception $e) {
-    error_log("File save error: " . $e->getMessage());
-}
 
-// Сохраняем данные в сессию (теперь хранится в Redis!)
-$_SESSION['form_data'] = [
-    'name' => $name,
-    'birthdate' => $birthdate,
-    'topic' => $topic,
-    'format' => $format,
-    'materials' => $materials,
-    'email' => $email
-];
+    // Сохраняем данные в сессию (теперь хранится в Redis!)
+    $_SESSION['form_data'] = [
+        'name' => $name,
+        'birthdate' => $birthdate,
+        'topic' => $topic,
+        'format' => $format,
+        'materials' => $materials,
+        'email' => $email,
+        'registration_id' => $lastId
+    ];
 
-// Записываем в Redis дополнительную информацию о сессии
-if (isset($_SESSION['redis_initialized'])) {
-    $_SESSION['registration_count'] = ($_SESSION['registration_count'] ?? 0) + 1;
-    $_SESSION['last_registration_time'] = date('Y-m-d H:i:s');
-    $_SESSION['preferred_topic'] = $topic;
-} else {
-    $_SESSION['redis_initialized'] = true;
-    $_SESSION['registration_count'] = 1;
-    $_SESSION['first_visit'] = date('Y-m-d H:i:s');
-    $_SESSION['last_registration_time'] = date('Y-m-d H:i:s');
-    $_SESSION['preferred_topic'] = $topic;
-}
+    // Записываем в Redis дополнительную информацию о сессии
+    if (isset($_SESSION['redis_initialized'])) {
+        $_SESSION['registration_count'] = ($_SESSION['registration_count'] ?? 0) + 1;
+        $_SESSION['last_registration_time'] = date('Y-m-d H:i:s');
+        $_SESSION['preferred_topic'] = $topic;
+    } else {
+        $_SESSION['redis_initialized'] = true;
+        $_SESSION['registration_count'] = 1;
+        $_SESSION['first_visit'] = date('Y-m-d H:i:s');
+        $_SESSION['last_registration_time'] = date('Y-m-d H:i:s');
+        $_SESSION['preferred_topic'] = $topic;
+    }
 
-// ВСЕГДА делаем API вызов, даже если БД не работает
-try {
+    // Шаг 2: Интеграция API после успешной обработки формы
     require_once 'ApiClient.php';
     $api = new ApiClient();
-    $url = 'https://api.artic.edu/api/v1/artworks?limit=10&fields=title,artist_display,medium_display';
+
+    // Используем API Art Institute of Chicago для получения списка художественных техник
+    $url = 'https://api.artic.edu/api/v1/artworks?limit=10&fields=id,title,artist_display,medium_display,date_display';
     $apiData = $api->request($url);
+
+    // Сохраняем данные API в сессии для отображения на странице списка
     $_SESSION['api_data'] = $apiData;
+
+    // Устанавливаем куку о последней отправке формы
+    setcookie("last_submission", date('Y-m-d H:i:s'), time() + 3600, "/");
+
+    // Перенаправляем на страницу со списком художественных техник
+    header("Location: techniques.php");
+    exit();
+
 } catch (Exception $e) {
-    error_log("API call failed: " . $e->getMessage());
-    // Создаем демо-данные если API не работает
-    $_SESSION['api_data'] = [
-        'data' => [
-            [
-                'title' => 'The Bedroom',
-                'artist_display' => 'Vincent van Gogh',
-                'medium_display' => 'Oil on canvas'
-            ],
-            [
-                'title' => 'Water Lilies',
-                'artist_display' => 'Claude Monet',
-                'medium_display' => 'Oil on canvas'
-            ],
-            [
-                'title' => 'American Gothic',
-                'artist_display' => 'Grant Wood',
-                'medium_display' => 'Oil on beaverboard'
-            ]
-        ],
-        'pagination' => [
-            'total' => 3
-        ]
-    ];
+    // Обработка ошибок
+    error_log("Registration process error: " . $e->getMessage());
+    
+    // Пытаемся сохранить хотя бы в файл, если другие методы не сработали
+    try {
+        $dataLine = date('Y-m-d H:i:s') . ";" . $name . ";" . $birthdate . ";" . $topic . ";" . $format . ";" . $materials . ";" . $email . "\n";
+        file_put_contents("data.txt", $dataLine, FILE_APPEND);
+        
+        // Сохраняем в сессию базовые данные
+        $_SESSION['form_data'] = [
+            'name' => $name,
+            'birthdate' => $birthdate,
+            'topic' => $topic,
+            'format' => $format,
+            'materials' => $materials,
+            'email' => $email
+        ];
+        
+        // Все равно делаем API вызов и редирект
+        require_once 'ApiClient.php';
+        $api = new ApiClient();
+        $url = 'https://api.artic.edu/api/v1/artworks?limit=10&fields=id,title,artist_display,medium_display,date_display';
+        $apiData = $api->request($url);
+        $_SESSION['api_data'] = $apiData;
+        setcookie("last_submission", date('Y-m-d H:i:s'), time() + 3600, "/");
+        
+        header("Location: techniques.php");
+        exit();
+        
+    } catch (Exception $fallbackError) {
+        // Если даже файловая система не работает
+        $errors[] = "Произошла критическая ошибка при сохранении данных. Пожалуйста, попробуйте еще раз.";
+        $_SESSION['errors'] = $errors;
+        header("Location: index.php");
+        exit();
+    }
 }
-
-// Устанавливаем куку о последней отправке формы
-setcookie("last_submission", date('Y-m-d H:i:s'), time() + 3600, "/");
-
-// Перенаправляем на страницу со списком художественных техник
-header("Location: techniques.php");
-exit();
 ?>
