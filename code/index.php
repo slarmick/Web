@@ -313,8 +313,6 @@
         }
         .db-mysql { background: #d4edda; color: #155724; }
         .db-redis { background: #ffebee; color: #c62828; }
-        .db-elastic { background: #e3f2fd; color: #1565c0; }
-        .db-clickhouse { background: #f3e5f5; color: #7b1fa2; }
     </style>
 </head>
 <body>
@@ -335,8 +333,6 @@
         <div class="database-status">
             <span class="db-status db-mysql">🗄️ MySQL</span>
             <span class="db-status db-redis">🔴 Redis</span>
-            <span class="db-status db-elastic">🔍 Elasticsearch</span>
-            <span class="db-status db-clickhouse">⚡ ClickHouse</span>
         </div>
 
         <!-- Дашборд аналитики -->
@@ -349,7 +345,6 @@
             $analytics = new AnalyticsService();
             
             $mysqlStats = $registration->getRegistrationStats();
-            $clickhouseStats = $analytics->getRegistrationStats();
             
             $totalRegistrations = $mysqlStats['total'] ?? 0;
             $todayRegistrations = $mysqlStats['today'] ?? 0;
@@ -439,7 +434,7 @@
                 <p><strong>Формат:</strong> <?= $_SESSION['form_data']['format'] == 'online' ? '🎥 Онлайн' : '🏢 Очно' ?></p>
                 <p><strong>Материалы:</strong> <?= $_SESSION['form_data']['materials'] == 'Да' ? '✅ Да (+500₽)' : '❌ Нет' ?></p>
                 <p><strong>Email:</strong> <?= $_SESSION['form_data']['email'] ?></p>
-                <p><em>Данные сохранены в MySQL, Redis, Elasticsearch и ClickHouse</em></p>
+                <p><em>Данные сохранены в MySQL и Redis</em></p>
             </div>
             <?php unset($_SESSION['form_data']); ?>
         <?php endif; ?>
@@ -520,11 +515,9 @@
 
         <div class="lab-card">
             <h3>🔴 Лабораторная работа №6 <span class="status-badge">Завершена</span></h3>
-            <p><strong>Тема:</strong> Нереляционные базы данных: Redis, Elasticsearch, ClickHouse</p>
+            <p><strong>Тема:</strong> Нереляционные базы данных: Redis</p>
             <div class="tech-stack">
                 <span class="tech-tag">Redis</span>
-                <span class="tech-tag">Elasticsearch</span>
-                <span class="tech-tag">ClickHouse</span>
                 <span class="tech-tag">Guzzle HTTP</span>
                 <span class="tech-tag">PHP Sessions</span>
                 <span class="tech-tag">Analytics</span>
@@ -532,10 +525,7 @@
             </div>
             <ul class="feature-list">
                 <li>Хранение сессий PHP в Redis для высокой производительности</li>
-                <li>Индексация данных пользователей в Elasticsearch для полнотекстового поиска</li>
-                <li>Сбор аналитики регистраций в ClickHouse для быстрой агрегации</li>
                 <li>Дашборд аналитики с статистикой в реальном времени</li>
-                <li>Поиск по пользователям через Elasticsearch API</li>
                 <li>Многокомпонентная архитектура с отказоустойчивостью</li>
                 <li>Graceful degradation при недоступности компонентов</li>
             </ul>
@@ -652,8 +642,6 @@
             <span class="tech-tag">PHP-FPM</span>
             <span class="tech-tag">MySQL 8.0</span>
             <span class="tech-tag">Redis</span>
-            <span class="tech-tag">Elasticsearch</span>
-            <span class="tech-tag">ClickHouse</span>
             <span class="tech-tag">HTML5</span>
             <span class="tech-tag">CSS3</span>
             <span class="tech-tag">JavaScript</span>
