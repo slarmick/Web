@@ -284,7 +284,7 @@ docker-compose up -d --build
 - 🔧 **PHP Classes** - объектно-ориентированная работа с БД
 
 ### Структура базы данных:
-```
+```sql
 CREATE TABLE master_class_registrations (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
