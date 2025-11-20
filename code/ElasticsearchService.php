@@ -1,7 +1,9 @@
 <?php
+require_once 'vendor/autoload.php';
+
 class ElasticsearchService {
     private $client;
-    private $isConnected = false;
+    public $isConnected = false;
 
     public function __construct() {
         try {

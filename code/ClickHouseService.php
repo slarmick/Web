@@ -1,7 +1,9 @@
 <?php
+require_once 'vendor/autoload.php';
+
 class ClickHouseService {
     private $client;
-    private $isConnected = false;
+    public $isConnected = false;
 
     public function __construct() {
         try {
@@ -198,12 +200,6 @@ class ClickHouseService {
         }
         
         return $result;
-    }
-
-    public function __get($property) {
-        if ($property === 'isConnected') {
-            return $this->isConnected;
-        }
     }
 }
 ?>
