@@ -1,64 +1,76 @@
 <?php
 require_once 'RedisService.php';
-require_once 'ElasticsearchService.php';
-require_once 'ClickHouseService.php';
 
 class Lab6Controller {
     private $redis;
-    private $elasticsearch;
-    private $clickhouse;
 
     public function __construct() {
         $this->redis = new RedisService();
-        $this->elasticsearch = new ElasticsearchService();
-        $this->clickhouse = new ClickHouseService();
         
-        // Инициализируем индексы при первом запуске
-        $this->elasticsearch->createIndex();
+        // Логируем статус подключения
+        if ($this->redis->isConnected) {
+            error_log("🚀 LAB6: Redis service initialized successfully");
+            $testResult = $this->redis->testConnection();
+            error_log("🔍 LAB6: Redis connection test: " . ($testResult ? 'PASS' : 'FAIL'));
+        } else {
+            error_log("❌ LAB6: Redis service initialization FAILED");
+        }
     }
 
     // Обработка новой регистрации
     public function processRegistration($formData) {
         $registrationId = uniqid('reg_', true);
         
+        error_log("🎯 LAB6: Processing registration with ID: " . $registrationId);
+        
         // 1. Кэшируем в Redis
-        $this->redis->cacheRegistration($registrationId, $formData);
+        $cacheResult = $this->redis->cacheRegistration($registrationId, $formData);
+        error_log("💾 LAB6: Cache result: " . ($cacheResult ? 'success' : 'failed'));
         
-        // 2. Индексируем в Elasticsearch для поиска
-        $this->elasticsearch->indexRegistration($formData);
+        // 2. Обновляем статистику в реальном времени
+        $statsResult = $this->redis->incrementStats($formData['topic'], $formData['format']);
+        error_log("📊 LAB6: Stats update result: " . ($statsResult ? 'success' : 'failed'));
         
-        // 3. Логируем в ClickHouse для аналитики
-        $this->clickhouse->logRegistration($formData);
-        
-        // 4. Обновляем статистику в реальном времени
-        $this->redis->incrementStats($formData['topic'], $formData['format']);
+        // 3. Сохраняем сессию пользователя
+        $sessionData = [
+            'user_ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+            'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'unknown',
+            'registration_time' => date('Y-m-d H:i:s'),
+            'form_data' => $formData
+        ];
+        $sessionResult = $this->redis->storeUserSession(session_id(), $sessionData);
+        error_log("👤 LAB6: Session storage result: " . ($sessionResult ? 'success' : 'failed'));
         
         return $registrationId;
     }
 
     // Получение комплексной статистики
     public function getComprehensiveStats() {
-        return [
+        $stats = [
             'real_time' => $this->redis->getRealTimeStats(),
-            'analytics' => $this->elasticsearch->getTopicAnalytics(),
-            'aggregated' => $this->clickhouse->getAggregatedStats(30),
-            'popular_topics' => $this->clickhouse->getPopularTopics(5),
-            'daily_trends' => $this->clickhouse->getDailyRegistrations(7)
+            'redis_connected' => $this->redis->isConnected,
+            'redis_keys' => $this->redis->getAllKeys()
         ];
-    }
 
-    // Поиск по регистрациям
-    public function searchRegistrations($query) {
-        return $this->elasticsearch->searchRegistrations($query);
+        error_log("📈 LAB6: Retrieved comprehensive stats");
+        return $stats;
     }
 
     // Проверка статусов подключений
     public function getConnectionStatus() {
         return [
-            'redis' => $this->redis->isConnected,
-            'elasticsearch' => $this->elasticsearch->isConnected,
-            'clickhouse' => $this->clickhouse->isConnected
+            'redis' => $this->redis->isConnected
         ];
+    }
+
+    // Получение кэшированной регистрации
+    public function getCachedRegistration($registrationId) {
+        return $this->redis->getCachedRegistration($registrationId);
+    }
+
+    // Получение сессии пользователя
+    public function getUserSession($sessionId) {
+        return $this->redis->getUserSession($sessionId);
     }
 }
 ?>

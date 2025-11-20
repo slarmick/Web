@@ -25,11 +25,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Копируем зависимости сначала для кэширования
-COPY code/composer.json code/composer.lock ./
-RUN composer install --no-dev --optimize-autoloader
-
 # Копируем исходный код
-COPY code/ .
+COPY . .
 
 CMD ["php-fpm"]

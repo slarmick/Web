@@ -2,7 +2,7 @@
 services:
   nginx:
     image: nginx:1.27-alpine
-    container_name: lab6_nginx
+    container_name: lab5_nginx
     ports:
       - "8080:80"
     volumes:
@@ -11,13 +11,11 @@ services:
     depends_on:
       - php
       - db
-      - redis
-      - elasticsearch
-      - clickhouse
+      - redis  # добавляем зависимость
 
   php:
     build: .
-    container_name: lab6_php
+    container_name: lab5_php
     volumes:
       - ./code:/var/www/html
     expose:
@@ -25,12 +23,12 @@ services:
 
   db:
     image: mysql:8.0
-    container_name: lab6_db
+    container_name: lab5_db
     environment:
       MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: lab6_db
-      MYSQL_USER: lab6_user
-      MYSQL_PASSWORD: lab6_pass
+      MYSQL_DATABASE: lab5_db
+      MYSQL_USER: lab5_user
+      MYSQL_PASSWORD: lab5_pass
     ports:
       - "3307:3306"
     volumes:
@@ -38,47 +36,20 @@ services:
 
   adminer:
     image: adminer
-    container_name: lab6_adminer
+    container_name: lab5_adminer
     ports:
       - "8081:8080"
     depends_on:
       - db
 
-  redis:
+  redis:  # новый сервис
     image: redis:7-alpine
-    container_name: lab6_redis
+    container_name: lab5_redis
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
 
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
-    container_name: lab6_elasticsearch
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ports:
-      - "9200:9200"
-    volumes:
-      - elasticsearch_data:/usr/share/elasticsearch/data
-
-  clickhouse:
-    image: clickhouse/clickhouse-server:24-alpine
-    container_name: lab6_clickhouse
-    ports:
-      - "8123:8123"
-      - "9000:9000"
-    environment:
-      - CLICKHOUSE_DB=lab6_stats
-      - CLICKHOUSE_USER=default
-      - CLICKHOUSE_PASSWORD=lab6_pass
-    volumes:
-      - clickhouse_data:/var/lib/clickhouse
-
 volumes:
   db_data:
-  redis_data:
-  elasticsearch_data:
-  clickhouse_data:
+  redis_data:  # новый volume

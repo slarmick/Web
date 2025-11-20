@@ -12,10 +12,8 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once 'db.php';
 require_once 'MasterClassRegistration.php';
 
-// Подключаем классы для работы с NoSQL (Лабораторная 6)
+// 🔥 ЛАБОРАТОРНАЯ 6: Подключаем Redis
 require_once 'RedisService.php';
-require_once 'ElasticsearchService.php';
-require_once 'ClickHouseService.php';
 require_once 'Lab6Controller.php';
 
 // Получаем данные из формы
@@ -73,7 +71,7 @@ try {
         throw new Exception("Ошибка сохранения в базу данных");
     }
 
-    // 🔥 ЛАБОРАТОРНАЯ 6: Сохраняем в NoSQL системы
+    // 🔥 ЛАБОРАТОРНАЯ 6: Сохраняем в Redis
     $lab6Controller = new Lab6Controller();
     
     $formData = [
@@ -85,11 +83,11 @@ try {
         'email' => $email
     ];
     
-    // Обрабатываем регистрацию во всех NoSQL системах
+    // Обрабатываем регистрацию в Redis
     $registrationId = $lab6Controller->processRegistration($formData);
     
-    // Логируем успешную интеграцию с NoSQL
-    error_log("LAB6: Registration processed in NoSQL systems with ID: " . $registrationId);
+    // Логируем успешную интеграцию с Redis
+    error_log("🎉 LAB6: Registration processed in Redis with ID: " . $registrationId);
 
     // Также сохраняем в файл для обратной совместимости
     $dataLine = date('Y-m-d H:i:s') . ";" . $name . ";" . $birthdate . ";" . $topic . ";" . $format . ";" . $materials . ";" . $email . "\n";
@@ -103,7 +101,7 @@ try {
         'format' => $format,
         'materials' => $materials,
         'email' => $email,
-        'nosql_id' => $registrationId // Добавляем ID из NoSQL систем
+        'redis_id' => $registrationId // Добавляем ID из Redis
     ];
 
     // 🔥 ПОДКЛЮЧЕНИЕ К API ART INSTITUTE OF CHICAGO
@@ -114,31 +112,21 @@ try {
 
     // Устанавливаем куку о последней отправке формы
     setcookie("last_submission", date('Y-m-d H:i:s'), time() + 3600, "/");
-    
-    // 🔥 ЛАБОРАТОРНАЯ 6: Сохраняем сессию пользователя в Redis
-    $redisService = new RedisService();
-    $sessionData = [
-        'user_ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
-        'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'unknown',
-        'registration_time' => date('Y-m-d H:i:s'),
-        'form_data' => $formData
-    ];
-    $redisService->storeUserSession(session_id(), $sessionData);
 
     // Перенаправляем на страницу со списком художественных техник
     header("Location: techniques.php");
     exit();
 
 } catch (Exception $e) {
-    // Обработка ошибок БД и NoSQL
-    error_log("Database/NoSQL error: " . $e->getMessage());
+    // Обработка ошибок БД и Redis
+    error_log("Database/Redis error: " . $e->getMessage());
     
     // Пытаемся сохранить хотя бы в файл, если другие системы не работают
     try {
         $dataLine = date('Y-m-d H:i:s') . ";" . $name . ";" . $birthdate . ";" . $topic . ";" . $format . ";" . $materials . ";" . $email . "\n";
         file_put_contents("data.txt", $dataLine, FILE_APPEND);
         
-        // Сохраняем в сессию даже при ошибках NoSQL
+        // Сохраняем в сессию даже при ошибках Redis
         $_SESSION['form_data'] = [
             'name' => $name,
             'birthdate' => $birthdate,
@@ -146,7 +134,7 @@ try {
             'format' => $format,
             'materials' => $materials,
             'email' => $email,
-            'warning' => 'Данные сохранены только в файл из-за временных проблем с системами хранения'
+            'warning' => 'Данные сохранены в файл и БД. Redis временно недоступен.'
         ];
         
         // Все равно перенаправляем на success страницу
