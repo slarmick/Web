@@ -58,6 +58,9 @@ class ClickHouseService {
                 $this->client->post('', ['body' => $query]);
             } catch (Exception $e) {
                 // Игнорируем ошибки "уже существует"
+                if (strpos($e->getMessage(), 'already exists') === false) {
+                    error_log("ClickHouse init error: " . $e->getMessage());
+                }
             }
         }
     }
@@ -79,7 +82,7 @@ class ClickHouseService {
                 " . time() . "
             )";
 
-            $response = $this->client->post('', ['body' $query]);
+            $response = $this->client->post('', ['body' => $query]);
             return $response->getStatusCode() === 200;
         } catch (Exception $e) {
             error_log("ClickHouse insert failed: " . $e->getMessage());
@@ -195,6 +198,12 @@ class ClickHouseService {
         }
         
         return $result;
+    }
+
+    public function __get($property) {
+        if ($property === 'isConnected') {
+            return $this->isConnected;
+        }
     }
 }
 ?>
