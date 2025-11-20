@@ -17,6 +17,9 @@ RUN apt-get update && apt-get install -y \
     mbstring \
     xml
 
+# Устанавливаем Redis extension
+RUN pecl install redis && docker-php-ext-enable redis
+
 # Устанавливаем Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
