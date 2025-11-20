@@ -271,8 +271,8 @@
             <a href="/about.html" class="nav-button">👨‍💻 О нас</a>
             <a href="/master-class.html" class="nav-button">📚 Форма регистрации</a>
             <a href="/view.php" class="nav-button">📊 Просмотр данных</a>
-            <a href="/redis-dashboard.php" class="nav-button">🔴 Redis Dashboard</a>
             <a href="/info.php" class="nav-button">⚙️ PHP Info</a>
+	    <a href="/redis-dashboard.php" class="nav-button">🔴 Redis Dashboard</a>
         </div>
 
         <!-- Вывод ошибок валидации -->
