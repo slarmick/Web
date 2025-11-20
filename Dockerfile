@@ -17,9 +17,6 @@ RUN apt-get update && apt-get install -y \
     mbstring \
     xml
 
-# Устанавливаем Redis extension
-RUN pecl install redis && docker-php-ext-enable redis
-
 # Устанавливаем Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
@@ -31,5 +28,8 @@ RUN composer install --no-dev --optimize-autoloader
 
 # Копируем исходный код
 COPY code/ .
+
+# Создаем директорию для Redis эмуляции
+RUN mkdir -p /var/www/html/redis_data && chmod 755 /var/www/html/redis_data
 
 CMD ["php-fpm"]
