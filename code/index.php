@@ -1,4 +1,4 @@
-﻿<?php session_start(); ?>
+﻿﻿<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -416,26 +416,6 @@ try {
             </div>
         <?php endif; ?>
 
-        <h2>📋 Быстрый доступ</h2>
-        <div class="quick-links">
-            <a href="/about.html" class="quick-link">
-                <h3>👨‍💻 О проекте</h3>
-                <p>Информация о лабораторных работах</p>
-            </a>
-            <a href="/master-class.html" class="quick-link">
-                <h3>📝 Форма регистрации</h3>
-                <p>Заполнить форму (PHP обработка)</p>
-            </a>
-            <a href="/view.php" class="quick-link">
-                <h3>📊 Все данные</h3>
-                <p>Просмотр всех записей</p>
-            </a>
-            <a href="/test.php" class="quick-link">
-                <h3>🧪 Тест PHP</h3>
-                <p>Проверка работы PHP</p>
-            </a>
-        </div>
-
         <div class="lab-card">
             <h3>🚀 Лабораторная работа №1 <span class="status-badge">Завершена</span></h3>
             <p><strong>Тема:</strong> Веб-сервер в Docker (Nginx + HTML)</p>
@@ -513,6 +493,53 @@ try {
             </ul>
         </div>
 
+        <div class="lab-card">
+            <h3>🗄️ Лабораторная работа №5 <span class="status-badge">Завершена</span></h3>
+            <p><strong>Тема:</strong> Работа с базой данных MySQL через PHP и Docker</p>
+            <div class="tech-stack">
+                <span class="tech-tag">MySQL</span>
+                <span class="tech-tag">PDO</span>
+                <span class="tech-tag">PHP Classes</span>
+                <span class="tech-tag">Docker Compose</span>
+                <span class="tech-tag">Adminer</span>
+                <span class="tech-tag">Database Design</span>
+            </div>
+            <ul class="feature-list">
+                <li>Настройка MySQL в Docker контейнере</li>
+                <li>Создание таблиц для данных формы</li>
+                <li>Работа с PDO для безопасного подключения к БД</li>
+                <li>Создание классов PHP для работы с таблицей</li>
+                <li>Сохранение данных формы в базу данных</li>
+                <li>Вывод данных из базы на странице</li>
+                <li>Использование Adminer для управления БД</li>
+                <li>Реализация CRUD операций (Create, Read, Update, Delete)</li>
+            </ul>
+        </div>
+
+        <div class="lab-card">
+            <h3>⚡ Лабораторная работа №6 <span class="status-badge">Завершена</span></h3>
+            <p><strong>Тема:</strong> Нереляционные базы данных (Redis, Elasticsearch, ClickHouse) и взаимодействие через API</p>
+            <div class="tech-stack">
+                <span class="tech-tag">Redis</span>
+                <span class="tech-tag">Elasticsearch</span>
+                <span class="tech-tag">ClickHouse</span>
+                <span class="tech-tag">Guzzle HTTP</span>
+                <span class="tech-tag">REST API</span>
+                <span class="tech-tag">NoSQL</span>
+                <span class="tech-tag">Docker Compose</span>
+            </div>
+            <ul class="feature-list">
+                <li>Изучение нереляционных СУБД: Redis, Elasticsearch, ClickHouse</li>
+                <li>Настройка многоконтейнерной среды с различными базами данных</li>
+                <li>Взаимодействие с базами данных через HTTP API с помощью GuzzleClient</li>
+                <li>Создание фабрики клиентов для работы с различными API</li>
+                <li>Работа с ключ-значение хранилищем Redis</li>
+                <li>Поиск и индексация данных в Elasticsearch</li>
+                <li>Выполнение аналитических запросов в ClickHouse</li>
+                <li>Реализация 30 тематических заданий для различных сценариев использования</li>
+            </ul>
+        </div>
+
         <h2>🛠️ Технологии проекта</h2>
         <div class="tech-stack">
             <span class="tech-tag">Docker</span>
@@ -530,6 +557,13 @@ try {
             <span class="tech-tag">Guzzle HTTP</span>
             <span class="tech-tag">REST API</span>
             <span class="tech-tag">Cookies</span>
+            <span class="tech-tag">MySQL</span>
+            <span class="tech-tag">PDO</span>
+            <span class="tech-tag">Redis</span>
+            <span class="tech-tag">Elasticsearch</span>
+            <span class="tech-tag">ClickHouse</span>
+            <span class="tech-tag">NoSQL</span>
+            <span class="tech-tag">Adminer</span>
         </div>
     </div>
 
