@@ -11,7 +11,9 @@ services:
     depends_on:
       - php
       - db
-      - redis  # добавляем зависимость
+      - redis
+      - rabbitmq
+      - kafka
 
   php:
     build: .
@@ -42,7 +44,7 @@ services:
     depends_on:
       - db
 
-  redis:  # новый сервис
+  redis:
     image: redis:7-alpine
     container_name: lab5_redis
     ports:
@@ -50,6 +52,43 @@ services:
     volumes:
       - redis_data:/data
 
+  # 🐇 RabbitMQ для четных вариантов
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: lab5_rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+
+  # 🦊 Kafka для нечетных вариантов
+  zookeeper:
+    image: bitnami/zookeeper:latest
+    container_name: lab5_zookeeper
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: bitnami/kafka:latest
+    container_name: lab5_kafka
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      - KAFKA_ENABLE_KRAFT=no
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CFG_LISTENERS=CLIENT://:9092,EXTERNAL://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://kafka:9092,EXTERNAL://localhost:9093
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=CLIENT
+    depends_on:
+      - zookeeper
+
 volumes:
   db_data:
-  redis_data:  # новый volume
+  redis_data:
