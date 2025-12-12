@@ -1,4 +1,4 @@
-﻿﻿<?php session_start(); ?>
+﻿<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -260,6 +260,28 @@
             border: 2px solid #ff9800;
             border-radius: 5px;
         }
+        .queue-stats {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #FF6600;
+        }
+        .queue-stats h4 {
+            color: #FF6600;
+            margin-top: 0;
+        }
+        .kafka-stats {
+            border-left-color: #000000;
+        }
+        .queue-error {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .queue-success {
+            color: #27ae60;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -272,7 +294,8 @@
             <a href="/master-class.html" class="nav-button">📚 Форма регистрации</a>
             <a href="/view.php" class="nav-button">📊 Просмотр данных</a>
             <a href="/info.php" class="nav-button">⚙️ PHP Info</a>
-	    <a href="/redis-dashboard.php" class="nav-button">🔴 Redis Dashboard</a>
+            <a href="/redis-dashboard.php" class="nav-button">🔴 Redis Dashboard</a>
+            <a href="/queue_dashboard.php" class="nav-button">📊 Queue Dashboard</a>
         </div>
 
         <!-- Вывод ошибок валидации -->
@@ -281,7 +304,7 @@
                 <h3>❌ Ошибки при заполнении формы:</h3>
                 <ul>
                     <?php foreach($_SESSION['errors'] as $error): ?>
-                        <li><?= $error ?></li>
+                        <li><?= htmlspecialchars($error) ?></li>
                     <?php endforeach; ?>
                 </ul>
             </div>
@@ -292,8 +315,8 @@
         <?php if(isset($_SESSION['form_data'])): ?>
             <div class="session-data">
                 <h3>✅ Данные успешно сохранены!</h3>
-                <p><strong>ФИО:</strong> <?= $_SESSION['form_data']['name'] ?></p>
-                <p><strong>Дата рождения:</strong> <?= $_SESSION['form_data']['birthdate'] ?></p>
+                <p><strong>ФИО:</strong> <?= htmlspecialchars($_SESSION['form_data']['name']) ?></p>
+                <p><strong>Дата рождения:</strong> <?= htmlspecialchars($_SESSION['form_data']['birthdate']) ?></p>
                 <p><strong>Тема:</strong> 
                     <?php
                     $topicNames = [
@@ -303,13 +326,32 @@
                         'data' => 'Анализ данных с Python',
                         'mobile' => 'Мобильная разработка'
                     ];
-                    echo $topicNames[$_SESSION['form_data']['topic']] ?? $_SESSION['form_data']['topic'];
+                    echo $topicNames[$_SESSION['form_data']['topic']] ?? htmlspecialchars($_SESSION['form_data']['topic']);
                     ?>
                 </p>
                 <p><strong>Формат:</strong> <?= $_SESSION['form_data']['format'] == 'online' ? '🎥 Онлайн' : '🏢 Очно' ?></p>
                 <p><strong>Материалы:</strong> <?= $_SESSION['form_data']['materials'] == 'Да' ? '✅ Да (+500₽)' : '❌ Нет' ?></p>
-                <p><strong>Email:</strong> <?= $_SESSION['form_data']['email'] ?></p>
-                <p><em>Данные сохранены в сессии и записаны в файл data.txt</em></p>
+                <p><strong>Email:</strong> <?= htmlspecialchars($_SESSION['form_data']['email']) ?></p>
+                
+                <?php if(isset($_SESSION['form_data']['queue_info'])): ?>
+                    <div class="queue-stats">
+                        <h4>📊 Статус очередей:</h4>
+                        <?php $queueInfo = $_SESSION['form_data']['queue_info']; ?>
+                        <?php if(isset($queueInfo['queue_error'])): ?>
+                            <p><span class="queue-error">⚠️ Ошибка очередей:</span> <?= htmlspecialchars($queueInfo['queue_error']) ?></p>
+                        <?php else: ?>
+                            <p><span class="queue-success">🐇 RabbitMQ:</span> <?= $queueInfo['rabbitmq_sent'] ? '✅ Отправлено' : '❌ Ошибка' ?></p>
+                            <p><span class="queue-success">🦊 Kafka:</span> <?= $queueInfo['kafka_sent'] ? '✅ Отправлено' : '❌ Ошибка' ?></p>
+                            <p><small>Время отправки: <?= htmlspecialchars($queueInfo['queue_timestamp']) ?></small></p>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+                
+                <?php if(isset($_SESSION['form_data']['warning'])): ?>
+                    <p><em><?= htmlspecialchars($_SESSION['form_data']['warning']) ?></em></p>
+                <?php else: ?>
+                    <p><em>Данные сохранены в MySQL, Redis и отправлены в очереди сообщений</em></p>
+                <?php endif; ?>
             </div>
             <?php unset($_SESSION['form_data']); ?>
         <?php endif; ?>
@@ -327,35 +369,35 @@
             <p><strong>Последняя отправка формы:</strong> <?= $userInfo['last_submission'] ?></p>
         </div>
 
-<!-- Статистика базы данных -->
-<?php
-try {
-    require_once 'MasterClassRegistration.php';
-    $registration = new MasterClassRegistration();
-    $dbCount = $registration->getRegistrationCount();
-    
-    $filename = "data.txt";
-    $fileCount = 0;
-    if(file_exists($filename) && filesize($filename) > 0){
-        $lines = file($filename, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        $fileCount = count($lines);
-    }
-    
-    $totalRecords = $dbCount + $fileCount;
-?>
-    <div class="data-count">
-        <h3>📊 Статистика данных</h3>
-        <p>Всего сохраненных записей: <strong><?= $totalRecords ?></strong></p>
-        <p>В базе данных: <strong><?= $dbCount ?></strong> | В файле: <strong><?= $fileCount ?></strong></p>
-        <a href="/view.php" class="nav-button" style="display: inline-block; padding: 8px 20px; margin-top: 10px;">
-            📋 Посмотреть все данные
-        </a>
-    </div>
-<?php
-} catch (Exception $e) {
-    // Игнорируем ошибки БД на главной странице
-}
-?>
+        <!-- Статистика базы данных -->
+        <?php
+        try {
+            require_once 'MasterClassRegistration.php';
+            $registration = new MasterClassRegistration();
+            $dbCount = $registration->getRegistrationCount();
+            
+            $filename = "data.txt";
+            $fileCount = 0;
+            if(file_exists($filename) && filesize($filename) > 0){
+                $lines = file($filename, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+                $fileCount = count($lines);
+            }
+            
+            $totalRecords = $dbCount + $fileCount;
+        ?>
+            <div class="data-count">
+                <h3>📊 Статистика данных</h3>
+                <p>Всего сохраненных записей: <strong><?= $totalRecords ?></strong></p>
+                <p>В базе данных: <strong><?= $dbCount ?></strong> | В файле: <strong><?= $fileCount ?></strong></p>
+                <a href="/view.php" class="nav-button" style="display: inline-block; padding: 8px 20px; margin-top: 10px;">
+                    📋 Посмотреть все данные
+                </a>
+            </div>
+        <?php
+        } catch (Exception $e) {
+            // Игнорируем ошибки БД на главной странице
+        }
+        ?>
 
         <!-- Вывод списка художественных техник из API -->
         <?php if(isset($_SESSION['api_data'])): ?>
@@ -396,124 +438,67 @@ try {
             <?php unset($_SESSION['api_data']); ?>
         <?php endif; ?>
 
-        <!-- Информация о количестве записей -->
-        <?php
-        $filename = "data.txt";
-        $totalRecords = 0;
-        if(file_exists($filename) && filesize($filename) > 0){
-            $lines = file($filename, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-            $totalRecords = count($lines);
-        }
-        ?>
-        
-        <?php if($totalRecords > 0): ?>
-            <div class="data-count">
-                <h3>📊 Статистика данных</h3>
-                <p>Всего сохраненных записей: <strong><?= $totalRecords ?></strong></p>
-                <a href="/view.php" class="nav-button" style="display: inline-block; padding: 8px 20px; margin-top: 10px;">
-                    📋 Посмотреть все данные
-                </a>
-            </div>
-        <?php endif; ?>
-
+        <!-- 🔥 ЛАБОРАТОРНАЯ РАБОТА №7 -->
         <div class="lab-card">
-            <h3>🚀 Лабораторная работа №1 <span class="status-badge">Завершена</span></h3>
-            <p><strong>Тема:</strong> Веб-сервер в Docker (Nginx + HTML)</p>
+            <h3>⚡ Лабораторная работа №7 <span class="status-badge">В процессе</span></h3>
+            <p><strong>Тема:</strong> Асинхронная обработка данных через очереди сообщений (RabbitMQ + Kafka)</p>
             <div class="tech-stack">
-                <span class="tech-tag">Docker</span>
-                <span class="tech-tag">Nginx</span>
-                <span class="tech-tag">HTML5</span>
-                <span class="tech-tag">CSS3</span>
-            </div>
-            <ul class="feature-list">
-                <li>Настройка Nginx в Docker контейнере</li>
-                <li>Создание кастомных HTML страниц</li>
-                <li>Настройка volumes для live-обновлений</li>
-                <li>Работа с портами и навигацией</li>
-            </ul>
-        </div>
-
-        <div class="lab-card">
-            <h3>🔧 Лабораторная работа №2 <span class="status-badge">Завершена</span></h3>
-            <p><strong>Тема:</strong> Настройка Nginx + PHP-FPM. Основы HTML-форм и обработка на JavaScript.</p>
-            <div class="tech-stack">
-                <span class="tech-tag">PHP 8.2</span>
-                <span class="tech-tag">PHP-FPM</span>
-                <span class="tech-tag">JavaScript</span>
-                <span class="tech-tag">HTML Forms</span>
+                <span class="tech-tag" style="background: #FF6600;">RabbitMQ</span>
+                <span class="tech-tag" style="background: #000000;">Apache Kafka</span>
+                <span class="tech-tag" style="background: #9B59B6;">Message Queues</span>
+                <span class="tech-tag" style="background: #3498DB;">Async Processing</span>
                 <span class="tech-tag">Docker Compose</span>
             </div>
-            <ul class="feature-list">
-                <li>Настройка связки Nginx + PHP-FPM</li>
-                <li>Создание интерактивных HTML форм</li>
-                <li>JavaScript обработка без перезагрузки страницы</li>
-                <li>Валидация форм на клиентской стороне</li>
-                <li>Работа с различными типами полей ввода</li>
-            </ul>
-        </div>
-
-        <div class="lab-card">
-            <h3>💻 Лабораторная работа №3 <span class="status-badge">Завершена</span></h3>
-            <p><strong>Тема:</strong> Обработка данных формы на PHP с сохранением в сессии и файл</p>
-            <div class="tech-stack">
-                <span class="tech-tag">PHP 8.2</span>
-                <span class="tech-tag">Сессии PHP</span>
-                <span class="tech-tag">Валидация</span>
-                <span class="tech-tag">Файлы</span>
-                <span class="tech-tag">HTML Forms</span>
+            
+            <?php
+            try {
+                require_once 'QueueManager.php';
+                $queueManager = new QueueManager();
+                $queueStats = $queueManager->getQueueStats();
+            } catch (Exception $e) {
+                $queueStats = null;
+                error_log("QueueManager error: " . $e->getMessage());
+            }
+            ?>
+            
+            <div class="user-info">
+                <h4>📊 Статистика очередей:</h4>
+                
+                <?php if($queueStats): ?>
+                    <div class="queue-stats">
+                        <h5>🐇 RabbitMQ:</h5>
+                        <p>Статус: <?= $queueStats['rabbitmq']['connected'] ? '✅ Подключено' : '❌ Отключено' ?></p>
+                        <p>Основная очередь: <?= $queueStats['rabbitmq']['main_queue'] ?> сообщений</p>
+                        <p>Очередь ошибок: <?= $queueStats['rabbitmq']['error_queue'] ?> сообщений</p>
+                    </div>
+                    
+                    <div class="queue-stats kafka-stats">
+                        <h5>🦊 Kafka:</h5>
+                        <p>Статус: <?= $queueStats['kafka']['connected'] ? '✅ Подключено' : '❌ Отключено' ?></p>
+                        <p>Основной топик: <?= $queueStats['kafka']['main_topic'] ?></p>
+                        <p>Топик ошибок: <?= $queueStats['kafka']['error_topic'] ?></p>
+                    </div>
+                <?php else: ?>
+                    <p class="queue-error">⚠️ Не удалось получить статистику очередей</p>
+                <?php endif; ?>
             </div>
-            <ul class="feature-list">
-                <li>Обработка данных формы на стороне сервера через PHP</li>
-                <li>Сохранение данных в сессии PHP</li>
-                <li>Сохранение данных в текстовый файл</li>
-                <li>Валидация данных на стороне сервера</li>
-                <li>Вывод всех сохраненных данных на отдельной странице</li>
-                <li>Обработка ошибок с пользовательскими сообщениями</li>
-            </ul>
-        </div>
 
-        <div class="lab-card">
-            <h3>🎨 Лабораторная работа №4 <span class="status-badge">Завершена</span></h3>
-            <p><strong>Тема:</strong> Composer, классы и работа с публичным API</p>
-            <div class="tech-stack">
-                <span class="tech-tag">Composer</span>
-                <span class="tech-tag">Guzzle HTTP</span>
-                <span class="tech-tag">API Integration</span>
-                <span class="tech-tag">PHP Classes</span>
-                <span class="tech-tag">Cookies</span>
-                <span class="tech-tag">Art Institute API</span>
-            </div>
             <ul class="feature-list">
-                <li>Работа с Composer и внешними библиотеками (Guzzle)</li>
-                <li>Создание классов для работы с API</li>
-                <li>Интеграция Art Institute of Chicago API</li>
-                <li>Отображение художественных техник и произведений</li>
-                <li>Работа с куками для хранения информации о пользователе</li>
-                <li>Сбор информации о браузере и IP-адресе</li>
+                <li>Интеграция RabbitMQ и Apache Kafka в одном проекте</li>
+                <li>Две очереди/топика: основная и для ошибок</li>
+                <li>Асинхронная обработка регистраций</li>
+                <li>Обработка ошибок с перемещением в очередь ошибок</li>
+                <li>Статистика сообщений в реальном времени</li>
+                <li>Панель управления RabbitMQ: <a href="http://localhost:15672" target="_blank">http://localhost:15672</a> (guest/guest)</li>
             </ul>
-        </div>
-
-        <div class="lab-card">
-            <h3>🗄️ Лабораторная работа №5 <span class="status-badge">Завершена</span></h3>
-            <p><strong>Тема:</strong> Работа с базой данных MySQL через PHP и Docker</p>
-            <div class="tech-stack">
-                <span class="tech-tag">MySQL</span>
-                <span class="tech-tag">PDO</span>
-                <span class="tech-tag">PHP Classes</span>
-                <span class="tech-tag">Docker Compose</span>
-                <span class="tech-tag">Adminer</span>
-                <span class="tech-tag">Database Design</span>
+            
+            <div class="nav-buttons">
+                <a href="/queue_dashboard.php" class="nav-button">📊 Queue Dashboard</a>
+                <a href="http://localhost:15672" target="_blank" class="nav-button">🐇 RabbitMQ Admin</a>
+                <button onclick="alert('Запуск воркера:\n\ndocker exec -it lab7_php php queue_worker.php\n\nили\n\nphp queue_worker.php (внутри контейнера)')" class="nav-button">
+                    👷 Запустить Worker
+                </button>
             </div>
-            <ul class="feature-list">
-                <li>Настройка MySQL в Docker контейнере</li>
-                <li>Создание таблиц для данных формы</li>
-                <li>Работа с PDO для безопасного подключения к БД</li>
-                <li>Создание классов PHP для работы с таблицей</li>
-                <li>Сохранение данных формы в базу данных</li>
-                <li>Вывод данных из базы на странице</li>
-                <li>Использование Adminer для управления БД</li>
-                <li>Реализация CRUD операций (Create, Read, Update, Delete)</li>
-            </ul>
         </div>
 
         <div class="lab-card">
@@ -540,6 +525,113 @@ try {
             </ul>
         </div>
 
+        <div class="lab-card">
+            <h3>🗄️ Лабораторная работа №5 <span class="status-badge">Завершена</span></h3>
+            <p><strong>Тема:</strong> Работа с базой данных MySQL через PHP и Docker</p>
+            <div class="tech-stack">
+                <span class="tech-tag">MySQL 8.0</span>
+                <span class="tech-tag">PDO</span>
+                <span class="tech-tag">Docker Compose</span>
+                <span class="tech-tag">Adminer</span>
+                <span class="tech-tag">PHP Classes</span>
+                <span class="tech-tag">Database Design</span>
+            </div>
+            <ul class="feature-list">
+                <li>Настройка MySQL контейнера в Docker Compose</li>
+                <li>Создание Dockerfile для PHP с расширениями MySQL</li>
+                <li>Разработка класса Database для работы с PDO</li>
+                <li>Создание таблицы master_class_registrations в MySQL</li>
+                <li>Класс MasterClassRegistration для CRUD операций</li>
+                <li>Интеграция Adminer для управления базой данных</li>
+                <li>Миграция данных из файловой системы в базу данных</li>
+                <li>Реализация удаления записей через AJAX</li>
+                <li>Обработка ошибок подключения к базе данных</li>
+                <li>Совместная работа с файловой системой и БД</li>
+            </ul>
+        </div>
+
+        <div class="lab-card">
+            <h3>🎨 Лабораторная работа №4 <span class="status-badge">Завершена</span></h3>
+            <p><strong>Тема:</strong> Composer, классы и работа с публичным API</p>
+            <div class="tech-stack">
+                <span class="tech-tag">Composer</span>
+                <span class="tech-tag">Guzzle HTTP</span>
+                <span class="tech-tag">REST API</span>
+                <span class="tech-tag">PHP Classes</span>
+                <span class="tech-tag">Cookies</span>
+                <span class="tech-tag">Art Institute API</span>
+                <span class="tech-tag">Docker</span>
+            </div>
+            <ul class="feature-list">
+                <li>Работа с Composer для управления зависимостями</li>
+                <li>Интеграция Guzzle HTTP клиента для работы с API</li>
+                <li>Создание класса ApiClient для работы с Art Institute of Chicago API</li>
+                <li>Получение данных о художественных техниках и произведениях искусства</li>
+                <li>Создание класса UserInfo для сбора информации о пользователе</li>
+                <li>Работа с куками для отслеживания времени последней отправки формы</li>
+                <li>Отображение IP-адреса, информации о браузере и времени сервера</li>
+                <li>Интеграция API данных в существующий процесс обработки формы</li>
+                <li>Обработка ошибок API с пользовательскими сообщениями</li>
+                <li>Отображение изображений картин из музея с использованием IIIF</li>
+            </ul>
+        </div>
+
+        <div class="lab-card">
+            <h3>💻 Лабораторная работа №3 <span class="status-badge">Завершена</span></h3>
+            <p><strong>Тема:</strong> Обработка данных формы на PHP с сохранением в сессии и файл</p>
+            <div class="tech-stack">
+                <span class="tech-tag">PHP 8.2</span>
+                <span class="tech-tag">Сессии PHP</span>
+                <span class="tech-tag">Валидация</span>
+                <span class="tech-tag">Файлы</span>
+                <span class="tech-tag">HTML Forms</span>
+            </div>
+            <ul class="feature-list">
+                <li>Обработка данных формы на стороне сервера через PHP</li>
+                <li>Сохранение данных в сессии PHP</li>
+                <li>Сохранение данных в текстовый файл</li>
+                <li>Валидация данных на стороне сервера</li>
+                <li>Вывод всех сохраненных данных на отдельной странице</li>
+                <li>Обработка ошибок с пользовательскими сообщениями</li>
+            </ul>
+        </div>
+
+        <div class="lab-card">
+            <h3>🔧 Лабораторная работа №2 <span class="status-badge">Завершена</span></h3>
+            <p><strong>Тема:</strong> Настройка Nginx + PHP-FPM. Основы HTML-форм и обработка на JavaScript.</p>
+            <div class="tech-stack">
+                <span class="tech-tag">PHP 8.2</span>
+                <span class="tech-tag">PHP-FPM</span>
+                <span class="tech-tag">JavaScript</span>
+                <span class="tech-tag">HTML Forms</span>
+                <span class="tech-tag">Docker Compose</span>
+            </div>
+            <ul class="feature-list">
+                <li>Настройка связки Nginx + PHP-FPM</li>
+                <li>Создание интерактивных HTML форм</li>
+                <li>JavaScript обработка без перезагрузки страницы</li>
+                <li>Валидация форм на клиентской стороне</li>
+                <li>Работа с различными типами полей ввода</li>
+            </ul>
+        </div>
+
+        <div class="lab-card">
+            <h3>🚀 Лабораторная работа №1 <span class="status-badge">Завершена</span></h3>
+            <p><strong>Тема:</strong> Веб-сервер в Docker (Nginx + HTML)</p>
+            <div class="tech-stack">
+                <span class="tech-tag">Docker</span>
+                <span class="tech-tag">Nginx</span>
+                <span class="tech-tag">HTML5</span>
+                <span class="tech-tag">CSS3</span>
+            </div>
+            <ul class="feature-list">
+                <li>Настройка Nginx в Docker контейнере</li>
+                <li>Создание кастомных HTML страниц</li>
+                <li>Настройка volumes для live-обновлений</li>
+                <li>Работа с портами и навигацией</li>
+            </ul>
+        </div>
+
         <h2>🛠️ Технологии проекта</h2>
         <div class="tech-stack">
             <span class="tech-tag">Docker</span>
@@ -560,9 +652,8 @@ try {
             <span class="tech-tag">MySQL</span>
             <span class="tech-tag">PDO</span>
             <span class="tech-tag">Redis</span>
-            <span class="tech-tag">Elasticsearch</span>
-            <span class="tech-tag">ClickHouse</span>
-            <span class="tech-tag">NoSQL</span>
+            <span class="tech-tag" style="background: #FF6600;">RabbitMQ</span>
+            <span class="tech-tag" style="background: #000000;">Apache Kafka</span>
             <span class="tech-tag">Adminer</span>
         </div>
     </div>
@@ -598,6 +689,15 @@ try {
                     apiData.style.opacity = '1';
                 }, 700);
             }
+
+            // Обновляем статистику очередей каждые 10 секунд
+            setInterval(() => {
+                const queueStats = document.querySelector('.lab-card:nth-child(5) .user-info');
+                if (queueStats && queueStats.querySelector('.queue-stats')) {
+                    // Можно добавить AJAX запрос для обновления статистики
+                    console.log('Queue stats refresh interval...');
+                }
+            }, 10000);
         });
     </script>
 </body>
