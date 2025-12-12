@@ -30,6 +30,11 @@
         .nav-button { background: #3498db; color: white; padding: 12px 25px; text-decoration: none; border-radius: 25px; font-weight: bold; transition: all 0.3s ease; border: 2px solid #3498db; }
         .nav-button:hover { background: white; color: #3498db; transform: translateY(-2px); }
         .log-container { background: #2c3e50; color: white; padding: 15px; border-radius: 5px; max-height: 400px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+        .message-item { background: #34495e; margin: 5px 0; padding: 10px; border-radius: 3px; }
+        .status-good { color: #27ae60; font-weight: bold; }
+        .status-bad { color: #e74c3c; font-weight: bold; }
+        .refresh-btn { background: #2ecc71; border-color: #2ecc71; }
+        .refresh-btn:hover { background: white; color: #2ecc71; }
     </style>
 </head>
 <body>
@@ -44,58 +49,92 @@
         </div>
 
         <?php
-        require_once 'QueueManager.php';
-        $queueManager = new QueueManager();
-        $stats = $queueManager->getQueueStats();
+        require_once __DIR__ . '/vendor/autoload.php';
+        
+        try {
+            if (!file_exists(__DIR__ . '/QueueManager.php')) {
+                throw new Exception("QueueManager.php не найден");
+            }
+            
+            require_once __DIR__ . '/QueueManager.php';
+            $queueManager = new QueueManager();
+            $stats = $queueManager->getQueueStats();
+            
+            // Получаем последние сообщения Kafka
+            $kafkaMessages = $queueManager->getKafkaMessages(10);
+            
+        } catch (Exception $e) {
+            echo "<div class='stat-card' style='border-left-color: #e74c3c;'>";
+            echo "<h3>❌ Ошибка подключения</h3>";
+            echo "<p>" . htmlspecialchars($e->getMessage()) . "</p>";
+            echo "</div>";
+            $stats = null;
+            $kafkaMessages = [];
+        }
         ?>
 
+        <?php if ($stats): ?>
         <div class="stats-grid">
             <div class="stat-card rabbit-card">
                 <h3>🐇 RabbitMQ Status</h3>
-                <p><strong>Connected:</strong> <?= $stats['rabbitmq']['connected'] ? '✅ Yes' : '❌ No' ?></p>
-                <p><strong>Main Queue:</strong> <?= $stats['rabbitmq']['main_queue'] ?> messages</p>
-                <p><strong>Error Queue:</strong> <?= $stats['rabbitmq']['error_queue'] ?> messages</p>
-                <p><strong>Admin:</strong> <a href="http://localhost:15672" target="_blank">http://localhost:15672</a></p>
+                <p><strong>Статус:</strong> 
+                    <span class="<?= $stats['rabbitmq']['connected'] ? 'status-good' : 'status-bad' ?>">
+                        <?= $stats['rabbitmq']['status'] ?>
+                    </span>
+                </p>
+                <p><strong>Основная очередь:</strong> <?= htmlspecialchars($stats['rabbitmq']['main_queue']) ?></p>
+                <p><strong>Очередь ошибок:</strong> <?= htmlspecialchars($stats['rabbitmq']['error_queue']) ?></p>
+                <p><strong>Сообщений:</strong> <?= htmlspecialchars($stats['rabbitmq']['messages_sent']) ?></p>
+                <p><strong>Админка:</strong> <a href="http://localhost:15672" target="_blank">http://localhost:15672</a></p>
             </div>
 
             <div class="stat-card kafka-card">
                 <h3>🦊 Kafka Status</h3>
-                <p><strong>Connected:</strong> <?= $stats['kafka']['connected'] ? '✅ Yes' : '❌ No' ?></p>
-                <p><strong>Main Topic:</strong> <?= $stats['kafka']['main_topic'] ?></p>
-                <p><strong>Error Topic:</strong> <?= $stats['kafka']['error_topic'] ?></p>
-                <p><strong>Broker:</strong> localhost:9093</p>
+                <p><strong>Статус:</strong> 
+                    <span class="<?= $stats['kafka']['connected'] ? 'status-good' : 'status-bad' ?>">
+                        <?= $stats['kafka']['status'] ?>
+                    </span>
+                </p>
+                <p><strong>Основной топик:</strong> <?= htmlspecialchars($stats['kafka']['main_topic']) ?></p>
+                <p><strong>Топик ошибок:</strong> <?= htmlspecialchars($stats['kafka']['error_topic']) ?></p>
+                <p><strong>Сообщений отправлено:</strong> <?= $stats['kafka']['messages_sent'] ?></p>
+                <p><strong>Broker:</strong> kafka:9092</p>
             </div>
         </div>
 
         <div class="stat-card">
-            <h3>📝 Processing Log</h3>
+            <h3>📝 Последние сообщения Kafka</h3>
             <div class="log-container">
-                <?php
-                if (file_exists('queue_processed.log')) {
-                    $lines = array_reverse(file('queue_processed.log', FILE_SKIP_EMPTY_LINES));
-                    $lines = array_slice($lines, 0, 20); // Последние 20 записей
-                    foreach ($lines as $line) {
-                        $data = json_decode($line, true);
-                        if ($data) {
-                            $time = $data['processed_at'] ?? 'N/A';
-                            $source = $data['source'] ?? 'N/A';
-                            $status = $data['status'] ?? 'N/A';
-                            $name = $data['data']['name'] ?? 'N/A';
-                            echo "[{$time}] {$source} - {$name} - {$status}\n";
-                        }
-                    }
-                } else {
-                    echo "Лог файл не найден. Запустите worker для обработки сообщений.\n";
-                }
-                ?>
+                <?php if (!empty($kafkaMessages)): ?>
+                    <?php foreach ($kafkaMessages as $message): ?>
+                        <div class="message-item">
+                            <strong><?= htmlspecialchars($message['timestamp'] ?? 'N/A') ?></strong><br>
+                            Топик: <?= htmlspecialchars($message['topic'] ?? 'N/A') ?><br>
+                            Данные: <?= htmlspecialchars(json_encode($message['data'] ?? [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)) ?>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p>Сообщений пока нет. Заполните форму регистрации.</p>
+                <?php endif; ?>
             </div>
         </div>
 
+        <?php else: ?>
+        <div class="stat-card">
+            <h3>⚠️ Ошибка загрузки статистики</h3>
+            <p>Проверьте наличие файла QueueManager.php и правильность его работы.</p>
+            <p>Попробуйте заполнить форму регистрации сначала: 
+                <a href="/master-class.html">Форма регистрации</a>
+            </p>
+        </div>
+        <?php endif; ?>
+
         <div class="nav-buttons">
-            <button onclick="location.reload()" class="nav-button">🔄 Обновить</button>
-            <button onclick="alert('Запуск: docker exec -it lab7_php php queue_worker.php')" class="nav-button">
+            <button onclick="location.reload()" class="nav-button refresh-btn">🔄 Обновить</button>
+            <button onclick="alert('Запуск worker: docker exec -it lab7_php php queue_worker.php')" class="nav-button">
                 👷 Запустить Worker
             </button>
+            <a href="/master-class.html" class="nav-button">📝 Отправить тестовое сообщение</a>
         </div>
     </div>
 </body>

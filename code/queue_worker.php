@@ -1,5 +1,7 @@
 <?php
-require_once 'QueueManager.php';
+// queue_worker.php - Worker для обработки сообщений из очередей
+require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/QueueManager.php';
 
 class QueueWorker {
     private $queueManager;
@@ -9,78 +11,22 @@ class QueueWorker {
     public function __construct() {
         $this->queueManager = new QueueManager();
         echo "🚀 Queue Worker запущен...\n";
-        echo "📊 Ожидание сообщений из RabbitMQ и Kafka...\n\n";
-    }
-
-    public function processMessage($data, $queueType) {
-        try {
-            echo "🔧 Обработка сообщения из {$queueType}:\n";
-            echo "   👤 Имя: " . ($data['name'] ?? 'N/A') . "\n";
-            echo "   📧 Email: " . ($data['email'] ?? 'N/A') . "\n";
-            echo "   🎯 Тема: " . ($data['topic'] ?? 'N/A') . "\n";
-            
-            // Имитация обработки
-            sleep(1);
-            
-            // Случайная "ошибка" для демонстрации (10% случаев)
-            if (rand(1, 10) === 1) {
-                throw new Exception("Случайная ошибка обработки");
-            }
-            
-            // Сохраняем в лог
-            $logEntry = [
-                'processed_at' => date('Y-m-d H:i:s'),
-                'source' => $queueType,
-                'data' => $data,
-                'status' => 'success'
-            ];
-            
-            file_put_contents('queue_processed.log', json_encode($logEntry) . PHP_EOL, FILE_APPEND);
-            
-            $this->processedCount++;
-            echo "   ✅ Успешно обработано (всего: {$this->processedCount})\n\n";
-            
-        } catch (Exception $e) {
-            $this->errorCount++;
-            echo "   ❌ Ошибка: " . $e->getMessage() . "\n";
-            echo "   📨 Отправка в очередь ошибок...\n";
-            
-            // Отправляем в очередь ошибок
-            $errorData = [
-                'original_data' => $data,
-                'error_message' => $e->getMessage(),
-                'failed_at' => date('Y-m-d H:i:s'),
-                'source' => $queueType
-            ];
-            
-            if ($queueType === 'rabbitmq') {
-                $this->queueManager->publishToRabbitMQ($errorData, 'error');
-            } else {
-                $this->queueManager->publishToKafka($errorData, 'error');
-            }
-            
-            echo "   📊 Ошибок всего: {$this->errorCount}\n\n";
-        }
+        echo "📊 Ожидание сообщений...\n\n";
     }
 
     public function start() {
-        // Запускаем обработчики в фоне
-        $this->startRabbitWorker();
-        $this->startKafkaWorker();
-    }
-
-    private function startRabbitWorker() {
-        // Основная очередь
-        pcntl_fork(); // Создаем дочерний процесс
+        // В этой версии просто выводим статистику
+        // В реальном приложении здесь был бы цикл обработки сообщений
+        echo "✅ Worker готов к работе\n";
+        echo "📈 Текущая статистика:\n";
         
-        $this->queueManager->consumeRabbitMQ('main', [$this, 'processMessage']);
-    }
-
-    private function startKafkaWorker() {
-        // Основной топик  
-        pcntl_fork(); // Создаем дочерний процесс
+        $stats = $this->queueManager->getQueueStats();
+        echo "   RabbitMQ: " . ($stats['rabbitmq']['connected'] ? '✅' : '❌') . "\n";
+        echo "   Kafka: " . ($stats['kafka']['connected'] ? '✅' : '❌') . "\n";
+        echo "   Сообщений в Kafka: " . $stats['kafka']['messages_sent'] . "\n\n";
         
-        $this->queueManager->consumeKafka('main', [$this, 'processMessage']);
+        echo "🏁 Worker завершил работу (демо-режим)\n";
+        echo "⚠️ Для реальной обработки требуется RabbitMQ Consumer\n";
     }
 }
 

@@ -135,6 +135,64 @@ class QueueManager {
         return false;
     }
 
+    // 📊 ПОЛУЧЕНИЕ СТАТИСТИКИ ОЧЕРЕДЕЙ
+    public function getQueueStats() {
+        $stats = [
+            'rabbitmq' => [
+                'main_queue' => $this->mainQueue,
+                'error_queue' => $this->errorQueue,
+                'connected' => (bool)$this->rabbitChannel,
+                'messages_sent' => 'N/A (реальные данные через RabbitMQ API)'
+            ],
+            'kafka' => [
+                'main_topic' => $this->mainTopic,
+                'error_topic' => $this->errorTopic, 
+                'connected' => $this->isKafkaAvailable(),
+                'messages_sent' => $this->getKafkaMessageCount()
+            ]
+        ];
+
+        // Добавляем реальные данные если доступны
+        $stats['rabbitmq']['status'] = $stats['rabbitmq']['connected'] ? '✅ Подключено' : '❌ Отключено';
+        $stats['kafka']['status'] = $stats['kafka']['connected'] ? '✅ Подключено' : '❌ Отключено';
+
+        return $stats;
+    }
+
+    // 📊 КОЛИЧЕСТВО СООБЩЕНИЙ В KAFKA (из лога)
+    private function getKafkaMessageCount() {
+        $logFile = 'kafka_messages.log';
+        if (!file_exists($logFile)) {
+            return 0;
+        }
+        
+        $lines = file($logFile, FILE_SKIP_EMPTY_LINES);
+        return count($lines);
+    }
+
+    // 📊 ПОЛУЧЕНИЕ ВСЕХ СООБЩЕНИЙ ИЗ ЛОГА KAFKA
+    public function getKafkaMessages($limit = 10) {
+        $logFile = 'kafka_messages.log';
+        if (!file_exists($logFile)) {
+            return [];
+        }
+        
+        $lines = file($logFile, FILE_SKIP_EMPTY_LINES);
+        $messages = [];
+        
+        // Берем последние $limit сообщений
+        $lines = array_slice($lines, -$limit);
+        
+        foreach ($lines as $line) {
+            $data = json_decode(trim($line), true);
+            if ($data) {
+                $messages[] = $data;
+            }
+        }
+        
+        return array_reverse($messages); // Новые сверху
+    }
+
     public function __destruct() {
         if ($this->rabbitChannel) {
             $this->rabbitChannel->close();
