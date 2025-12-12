@@ -2,7 +2,7 @@
 services:
   nginx:
     image: nginx:1.27-alpine
-    container_name: lab5_nginx
+    container_name: lab7_nginx
     ports:
       - "8080:80"
     volumes:
@@ -17,7 +17,7 @@ services:
 
   php:
     build: .
-    container_name: lab5_php
+    container_name: lab7_php
     volumes:
       - ./code:/var/www/html
     expose:
@@ -25,28 +25,28 @@ services:
 
   db:
     image: mysql:8.0
-    container_name: lab5_db
+    container_name: lab7_db
     environment:
       MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: lab5_db
-      MYSQL_USER: lab5_user
-      MYSQL_PASSWORD: lab5_pass
+      MYSQL_DATABASE: lab7_db
+      MYSQL_USER: lab7_user
+      MYSQL_PASSWORD: lab7_pass
     ports:
       - "3307:3306"
     volumes:
       - db_data:/var/lib/mysql
 
   adminer:
-    image: adminer
-    container_name: lab5_adminer
+    image: adminer:latest
+    container_name: lab7_adminer
     ports:
       - "8081:8080"
     depends_on:
       - db
 
   redis:
-    image: redis:7-alpine
-    container_name: lab5_redis
+    image: redis:7.2-alpine
+    container_name: lab7_redis
     ports:
       - "6379:6379"
     volumes:
@@ -54,8 +54,8 @@ services:
 
   # 🐇 RabbitMQ для четных вариантов
   rabbitmq:
-    image: rabbitmq:3-management
-    container_name: lab5_rabbitmq
+    image: rabbitmq:3.13-management-alpine
+    container_name: lab7_rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -65,16 +65,16 @@ services:
 
   # 🦊 Kafka для нечетных вариантов
   zookeeper:
-    image: bitnami/zookeeper:latest
-    container_name: lab5_zookeeper
+    image: bitnami/zookeeper:3.9
+    container_name: lab7_zookeeper
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
     ports:
       - "2181:2181"
 
   kafka:
-    image: bitnami/kafka:latest
-    container_name: lab5_kafka
+    image: bitnami/kafka:3.7
+    container_name: lab7_kafka
     ports:
       - "9092:9092"
       - "9093:9093"
