@@ -28,9 +28,9 @@ services:
     container_name: lab7_db
     environment:
       MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: lab7_db
-      MYSQL_USER: lab7_user
-      MYSQL_PASSWORD: lab7_pass
+      MYSQL_DATABASE: lab5_db      
+      MYSQL_USER: lab5_user        
+      MYSQL_PASSWORD: lab5_pass    
     ports:
       - "3307:3306"
     volumes:
@@ -52,7 +52,6 @@ services:
     volumes:
       - redis_data:/data
 
-  # 🐇 RabbitMQ для четных вариантов
   rabbitmq:
     image: rabbitmq:3.13-management-alpine
     container_name: lab7_rabbitmq
@@ -63,7 +62,6 @@ services:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
 
-  # 🦊 Kafka для нечетных вариантов
   zookeeper:
     image: bitnami/zookeeper:3.9
     container_name: lab7_zookeeper
@@ -73,7 +71,7 @@ services:
       - "2181:2181"
 
   kafka:
-    image: bitnami/kafka:3.7
+    image: bitnami/kafka:3.5        
     container_name: lab7_kafka
     ports:
       - "9092:9092"

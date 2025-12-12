@@ -15,9 +15,6 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 WORKDIR /var/www/html
 
-COPY composer.json /var/www/html/
-RUN composer install --no-dev --optimize-autoloader
-
 # Установка расширения Redis
 RUN pecl install redis && docker-php-ext-enable redis
 
