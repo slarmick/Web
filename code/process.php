@@ -111,39 +111,47 @@ try {
     ];
 
     // 🔥 ЛАБОРАТОРНАЯ 7: Асинхронная обработка через очереди
-    require_once 'QueueManager.php';
-    
-    try {
-        $queueManager = new QueueManager();
-        
-        $queueData = [
-            'registration_id' => $registrationId,
-            'name' => $name,
-            'email' => $email,
-            'topic' => $topic,
-            'format' => $format,
-            'materials' => $materials,
-            'birthdate' => $birthdate,
-            'timestamp' => date('Y-m-d H:i:s'),
-            'user_ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown'
-        ];
-
-        // Отправляем в RabbitMQ
-        $rabbitResult = $queueManager->publishToRabbitMQ($queueData, 'main');
-        
-        // Отправляем в Kafka (с дополнительной буферизацией)
-        $kafkaBuffer = ob_start(); // Дополнительный буфер для Kafka
-        $kafkaResult = $queueManager->publishToKafka($queueData, 'main');
-        ob_end_clean(); // Очищаем буфер Kafka
-        
-        error_log("🎉 LAB7: Registration sent to queues - RabbitMQ: " . 
-                  ($rabbitResult ? 'success' : 'fail') . 
-                  ", Kafka: " . ($kafkaResult ? 'success' : 'fail'));
-
-    } catch (Exception $queueError) {
-        // Логируем ошибку очереди, но не прерываем выполнение
-        error_log("⚠️ LAB7: Queue error (non-critical): " . $queueError->getMessage());
+  try {
+    // Проверяем существование файла
+    if (!file_exists('QueueManager.php')) {
+        throw new Exception("QueueManager.php not found at: " . __DIR__ . '/QueueManager.php');
     }
+    
+    require_once 'QueueManager.php';
+    $queueManager = new QueueManager();
+    
+    $queueData = [
+        'registration_id' => $registrationId,
+        'name' => $name,
+        'email' => $email,
+        'topic' => $topic,
+        'format' => $format,
+        'materials' => $materials,
+        'birthdate' => $birthdate,
+        'timestamp' => date('Y-m-d H:i:s'),
+        'user_ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown'
+    ];
+
+    // Отправляем в RabbitMQ
+    $rabbitResult = $queueManager->publishToRabbitMQ($queueData, 'main');
+    
+    // Отправляем в Kafka с дополнительной защитой
+    $kafkaResult = false;
+    try {
+        $kafkaResult = $queueManager->publishToKafka($queueData, 'main');
+    } catch (Exception $kafkaError) {
+        error_log("⚠️ LAB7: Kafka specific error: " . $kafkaError->getMessage());
+        $kafkaResult = false;
+    }
+
+    error_log("🎉 LAB7: Registration sent - RabbitMQ: " . 
+              ($rabbitResult ? 'success' : 'fail') . 
+              ", Kafka: " . ($kafkaResult ? 'success' : 'fail'));
+
+} catch (Exception $queueError) {
+    // Логируем ошибку очереди, но не прерываем выполнение
+    error_log("⚠️ LAB7: Queue error (non-critical): " . $queueError->getMessage());
+}
 
     // 🔥 ПОДКЛЮЧЕНИЕ К API ART INSTITUTE OF CHICAGO
     $apiData = getArtworksFromAPI();
