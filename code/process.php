@@ -1,5 +1,11 @@
 <?php
-// Настройки сессии ДО запуска сессии
+// 1. Отключаем deprecated warnings от старых библиотек
+error_reporting(E_ALL & ~E_DEPRECATED);
+
+// 2. Включаем буферизацию вывода (чтобы Kafka не ломала headers)
+ob_start();
+
+// 3. Настройки сессии ДО запуска сессии
 ini_set('session.gc_maxlifetime', 3600);
 session_set_cookie_params(3600);
 
@@ -12,12 +18,9 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once 'db.php';
 require_once 'MasterClassRegistration.php';
 
-//ЛАБОРАТОРНАЯ 6: Подключаем Redis
+// 🔥 ЛАБОРАТОРНАЯ 6: Подключаем Redis
 require_once 'RedisService.php';
 require_once 'Lab6Controller.php';
-
-//ЛАБОРАТОРНАЯ 7: Подключаем Queue Manager
-require_once 'QueueManager.php';
 
 // Получаем данные из формы
 $name = htmlspecialchars($_POST['name'] ?? '');
@@ -74,11 +77,7 @@ try {
         throw new Exception("Ошибка сохранения в базу данных");
     }
 
-    // Получаем ID последней записи
-    $lastId = getDB()->lastInsertId();
-    $registrationId = "reg_" . $lastId . "_" . time();
-
-    //ЛАБОРАТОРНАЯ 6: Сохраняем в Redis
+    // 🔥 ЛАБОРАТОРНАЯ 6: Сохраняем в Redis
     $lab6Controller = new Lab6Controller();
     
     $formData = [
@@ -91,58 +90,16 @@ try {
     ];
     
     // Обрабатываем регистрацию в Redis
-    $redisRegistrationId = $lab6Controller->processRegistration($formData);
+    $registrationId = $lab6Controller->processRegistration($formData);
     
     // Логируем успешную интеграцию с Redis
-    error_log("🎉 LAB6: Registration processed in Redis with ID: " . $redisRegistrationId);
-
-    //ЛАБОРАТОРНАЯ 7: Отправляем в очереди сообщений
-    try {
-        $queueManager = new QueueManager();
-        
-        $queueData = [
-            'registration_id' => $registrationId,
-            'redis_id' => $redisRegistrationId,
-            'name' => $name,
-            'email' => $email,
-            'topic' => $topic,
-            'format' => $format,
-            'materials' => $materials,
-            'birthdate' => $birthdate,
-            'timestamp' => date('Y-m-d H:i:s'),
-            'user_ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
-            'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'unknown',
-            'source' => 'web_form'
-        ];
-
-        // Отправляем в обе системы (штрафное задание)
-        $rabbitResult = $queueManager->publishToRabbitMQ($queueData, 'main');
-        $kafkaResult = $queueManager->publishToKafka($queueData, 'main');
-
-        error_log("🎉 LAB7: Registration sent to queues - RabbitMQ: " . 
-                  ($rabbitResult ? 'success' : 'fail') . 
-                  ", Kafka: " . ($kafkaResult ? 'success' : 'fail'));
-
-        // Добавляем информацию об очередях в сессию
-        $queueInfo = [
-            'rabbitmq_sent' => $rabbitResult,
-            'kafka_sent' => $kafkaResult,
-            'queue_timestamp' => date('Y-m-d H:i:s')
-        ];
-
-    } catch (Exception $e) {
-        error_log("❌ LAB7: Queue error: " . $e->getMessage());
-        $queueInfo = [
-            'queue_error' => $e->getMessage(),
-            'queue_timestamp' => date('Y-m-d H:i:s')
-        ];
-    }
+    error_log("🎉 LAB6: Registration processed in Redis with ID: " . $registrationId);
 
     // Также сохраняем в файл для обратной совместимости
     $dataLine = date('Y-m-d H:i:s') . ";" . $name . ";" . $birthdate . ";" . $topic . ";" . $format . ";" . $materials . ";" . $email . "\n";
     file_put_contents("data.txt", $dataLine, FILE_APPEND);
 
-    // Сохраняем данные в сессию
+    // Сохраняем данные в сессии
     $_SESSION['form_data'] = [
         'name' => $name,
         'birthdate' => $birthdate,
@@ -150,13 +107,45 @@ try {
         'format' => $format,
         'materials' => $materials,
         'email' => $email,
-        'registration_id' => $registrationId,
-        'redis_id' => $redisRegistrationId,
-        'queue_info' => $queueInfo ?? [],
-        'warning' => isset($queueInfo['queue_error']) ? 'Очереди временно недоступны, данные сохранены в БД и файл' : null
+        'redis_id' => $registrationId // Добавляем ID из Redis
     ];
 
-    //ПОДКЛЮЧЕНИЕ К API ART INSTITUTE OF CHICAGO
+    // 🔥 ЛАБОРАТОРНАЯ 7: Асинхронная обработка через очереди
+    require_once 'QueueManager.php';
+    
+    try {
+        $queueManager = new QueueManager();
+        
+        $queueData = [
+            'registration_id' => $registrationId,
+            'name' => $name,
+            'email' => $email,
+            'topic' => $topic,
+            'format' => $format,
+            'materials' => $materials,
+            'birthdate' => $birthdate,
+            'timestamp' => date('Y-m-d H:i:s'),
+            'user_ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown'
+        ];
+
+        // Отправляем в RabbitMQ
+        $rabbitResult = $queueManager->publishToRabbitMQ($queueData, 'main');
+        
+        // Отправляем в Kafka (с дополнительной буферизацией)
+        $kafkaBuffer = ob_start(); // Дополнительный буфер для Kafka
+        $kafkaResult = $queueManager->publishToKafka($queueData, 'main');
+        ob_end_clean(); // Очищаем буфер Kafka
+        
+        error_log("🎉 LAB7: Registration sent to queues - RabbitMQ: " . 
+                  ($rabbitResult ? 'success' : 'fail') . 
+                  ", Kafka: " . ($kafkaResult ? 'success' : 'fail'));
+
+    } catch (Exception $queueError) {
+        // Логируем ошибку очереди, но не прерываем выполнение
+        error_log("⚠️ LAB7: Queue error (non-critical): " . $queueError->getMessage());
+    }
+
+    // 🔥 ПОДКЛЮЧЕНИЕ К API ART INSTITUTE OF CHICAGO
     $apiData = getArtworksFromAPI();
 
     // Сохраняем данные API в сессии для отображения на странице списка
@@ -165,20 +154,23 @@ try {
     // Устанавливаем куку о последней отправке формы
     setcookie("last_submission", date('Y-m-d H:i:s'), time() + 3600, "/");
 
+    // Очищаем основной буфер перед отправкой заголовков
+    ob_end_clean();
+
     // Перенаправляем на страницу со списком художественных техник
     header("Location: techniques.php");
     exit();
 
 } catch (Exception $e) {
-    // Обработка ошибок БД, Redis и очередей
-    error_log("Database/Redis/Queue error: " . $e->getMessage());
+    // Обработка ошибок БД и Redis
+    error_log("Database/Redis error: " . $e->getMessage());
     
     // Пытаемся сохранить хотя бы в файл, если другие системы не работают
     try {
         $dataLine = date('Y-m-d H:i:s') . ";" . $name . ";" . $birthdate . ";" . $topic . ";" . $format . ";" . $materials . ";" . $email . "\n";
         file_put_contents("data.txt", $dataLine, FILE_APPEND);
         
-        // Сохраняем в сессию даже при ошибках
+        // Сохраняем в сессию даже при ошибках Redis
         $_SESSION['form_data'] = [
             'name' => $name,
             'birthdate' => $birthdate,
@@ -186,8 +178,11 @@ try {
             'format' => $format,
             'materials' => $materials,
             'email' => $email,
-            'warning' => 'Данные сохранены в файл. Redis/очереди временно недоступны.'
+            'warning' => 'Данные сохранены в файл и БД. Redis временно недоступен.'
         ];
+        
+        // Очищаем буфер перед редиректом
+        ob_end_clean();
         
         // Все равно перенаправляем на success страницу
         header("Location: techniques.php");
@@ -197,6 +192,8 @@ try {
         // Если даже файл не работает, показываем ошибку
         $errors[] = "Произошла критическая ошибка при сохранении данных. Пожалуйста, попробуйте еще раз.";
         $_SESSION['errors'] = $errors;
+        
+        ob_end_clean();
         header("Location: index.php");
         exit();
     }
@@ -307,5 +304,10 @@ function getDemoArtData() {
             'website_url' => 'https://www.artic.edu'
         ]
     ];
+}
+
+// Закрываем буфер (на всякий случай, если что-то пошло не так)
+if (ob_get_level() > 0) {
+    ob_end_flush();
 }
 ?>
