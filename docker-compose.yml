@@ -1,5 +1,4 @@
-﻿version: '3.8'
-services:
+﻿services:
   nginx:
     image: nginx:1.27-alpine
     container_name: lab7_nginx
@@ -13,7 +12,6 @@ services:
       - db
       - redis
       - rabbitmq
-      - kafka
 
   php:
     build: .
@@ -28,9 +26,9 @@ services:
     container_name: lab7_db
     environment:
       MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: lab5_db      
-      MYSQL_USER: lab5_user        
-      MYSQL_PASSWORD: lab5_pass    
+      MYSQL_DATABASE: lab5_db
+      MYSQL_USER: lab5_user
+      MYSQL_PASSWORD: lab5_pass
     ports:
       - "3307:3306"
     volumes:
@@ -62,30 +60,28 @@ services:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
 
-  zookeeper:
-    image: bitnami/zookeeper:3.9
-    container_name: lab7_zookeeper
-    environment:
-      - ALLOW_ANONYMOUS_LOGIN=yes
-    ports:
-      - "2181:2181"
-
   kafka:
-    image: bitnami/kafka:3.5        
+    image: confluentinc/cp-kafka:7.5.2
     container_name: lab7_kafka
     ports:
       - "9092:9092"
-      - "9093:9093"
     environment:
-      - KAFKA_ENABLE_KRAFT=no
-      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
-      - ALLOW_PLAINTEXT_LISTENER=yes
-      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT
-      - KAFKA_CFG_LISTENERS=CLIENT://:9092,EXTERNAL://:9093
-      - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://kafka:9092,EXTERNAL://localhost:9093
-      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=CLIENT
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     depends_on:
       - zookeeper
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.2
+    container_name: lab7_zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
 
 volumes:
   db_data:
